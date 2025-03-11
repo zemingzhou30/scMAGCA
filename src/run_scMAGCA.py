@@ -41,43 +41,43 @@ if __name__ == "__main__":
     torch.backends.cudnn.benchmark = False
 
     ### read CITE-Seq datasets
-    x1 = np.array(sc.read_h5ad('../datasets/10x1kpbmc/10x1kpbmc_adt.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/10x1kpbmc/10x1kpbmc_rna.h5ad').to_df()).astype('float32')
-    y = np.array(pd.read_csv('../datasets/10x1kpbmc/10x1kpbmc_label.csv')['Cluster']).astype('float32')
-    '''x1 = np.array(sc.read_h5ad('../datasets/10x5kpbmc_adt.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/10x5kpbmc_rna.h5ad').to_df()).astype('float32')
-    y = np.array(pd.read_csv('../datasets/10x5kpbmc_label.csv')['Cluster']).astype('float32')'''
-    '''x1 = np.array(sc.read_h5ad('../datasets/10x5kpbmcTotalSeq_adt.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/10x5kpbmcTotalSeq_rna.h5ad').to_df()).astype('float32')
-    y = np.array(pd.read_csv('../datasets/10x5kpbmcTotalSeq_label.csv')['Cluster']).astype('float32')'''
-    '''x1 = np.array(sc.read_h5ad('../datasets/10xmalt_adt.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/10xmalt_rna.h5ad').to_df()).astype('float32')
-    y = np.array(pd.read_csv('../datasets/10xmalt_label.csv')['Cluster']).astype('float32')'''
-    '''data_mat = h5py.File('../datasets/GSE128639_BMNC.h5')
+    x1 = np.array(sc.read_h5ad('../datasets/10X1kpbmc/10X1kpbmc_adt.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/10X1kpbmc/10X1kpbmc_rna.h5ad').to_df()).astype('float32')
+    y = np.array(pd.read_csv('../datasets/10X1kpbmc/10X1kpbmc_label.csv')['Cluster']).astype('float32')
+    '''x1 = np.array(sc.read_h5ad('../datasets/10X5kpbmc/10X5kpbmc_adt.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/10X5kpbmc/10X5kpbmc_rna.h5ad').to_df()).astype('float32')
+    y = np.array(pd.read_csv('../datasets/10X5kpbmc/10X5kpbmc_label.csv')['Cluster']).astype('float32')'''
+    '''x1 = np.array(sc.read_h5ad('../datasets/10X5kpbmcTotalSeq/10X5kpbmcTotalSeq_adt.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/10X5kpbmcTotalSeq/10X5kpbmcTotalSeq_rna.h5ad').to_df()).astype('float32')
+    y = np.array(pd.read_csv('../datasets/10X5kpbmcTotalSeq/10X5kpbmcTotalSeq_label.csv')['Cluster']).astype('float32')'''
+    '''x1 = np.array(sc.read_h5ad('../datasets/10Xmalt/10Xmalt_adt.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/10Xmalt/10Xmalt_rna.h5ad').to_df()).astype('float32')
+    y = np.array(pd.read_csv('../datasets/10Xmalt/10Xmalt_label.csv')['Cluster']).astype('float32')'''
+    '''data_mat = h5py.File('../datasets/GSE128639/GSE128639.h5')
     x1, x2, y = np.array(data_mat['X2']).astype('float32'), np.array(data_mat['X1']).astype('float32'), np.array(data_mat['Y']).astype('float32')
     data_mat.close()'''
-    '''data_mat = h5py.File('../datasets/CITEseq_PBMC_spector_anno.h5')
+    '''data_mat = h5py.File('../datasets/spector/spector.h5')
     x1, x2, y = np.array(data_mat['X2']).astype('float32'), np.array(data_mat['X1']).astype('float32'), np.array(data_mat['Y']).astype('float32')'''
 
     ### read SMAGE-Seq datasets
-    '''x1 = np.array(sc.read_h5ad('../datasets/human_brain_3k_atac.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/human_brain_3k_rna.h5ad').to_df()).astype('float32')
-    y = np.array(pd.read_csv('../datasets/human_brain_3k_label.csv')['Cluster']).astype('float32')'''
-    '''x1 = np.array(sc.read_h5ad('../datasets/human_pbmc_3k_atac.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/human_pbmc_3k_rna.h5ad').to_df()).astype('float32')
-    y = np.array(pd.read_csv('../datasets/human_pbmc_3k_label_a.csv')['Cluster']).astype('float32')'''
-    '''x1 = np.array(sc.read_h5ad('../datasets/mouse_brain_5k_atac.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/mouse_brain_5k_rna.h5ad').to_df()).astype('float32')
-    y = np.array(pd.read_csv('../datasets/mouse_brain_5k_label_a.csv')['Cluster']).astype('float32')'''
+    '''x1 = np.array(sc.read_h5ad('../datasets/human_brain_3k/human_brain_3k_atac.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/human_brain_3k/human_brain_3k_rna.h5ad').to_df()).astype('float32')
+    y = np.array(pd.read_csv('../datasets/human_brain_3k/human_brain_3k_label.csv')['Cluster']).astype('float32')'''
+    '''x1 = np.array(sc.read_h5ad('../datasets/human_pbmc_3k/human_pbmc_3k_atac.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/human_pbmc_3k/human_pbmc_3k_rna.h5ad').to_df()).astype('float32')
+    y = np.array(pd.read_csv('../datasets/human_pbmc_3k/human_pbmc_3k_label_a.csv')['Cluster']).astype('float32')'''
+    '''x1 = np.array(sc.read_h5ad('../datasets/mouse_brain_5k/mouse_brain_5k_atac.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/mouse_brain_5k/mouse_brain_5k_rna.h5ad').to_df()).astype('float32')
+    y = np.array(pd.read_csv('../datasets/mouse_brain_5k/mouse_brain_5k_label_a.csv')['Cluster']).astype('float32')'''
     ### read no-label SMAGE-Seq datasets
-    '''x1 = np.array(sc.read_h5ad('../datasets/GSM4949911_tea_atac.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/GSM4949911_tea_rna.h5ad').to_df()).astype('float32')
+    '''x1 = np.array(sc.read_h5ad('../datasets/GSM4949911/GSM4949911_atac.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/GSM4949911/GSM4949911_rna.h5ad').to_df()).astype('float32')
     y = None'''
-    '''x1 = np.array(sc.read_h5ad('../datasets/pbmc_10x_atac_public.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/pbmc_10x_rna_public.h5ad').to_df()).astype('float32')
+    '''x1 = np.array(sc.read_h5ad('../datasets/pbmc_10X_public/pbmc_10X_atac_public.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/pbmc_10X_public/pbmc_10X_rna_public.h5ad').to_df()).astype('float32')
     y = None'''
-    '''x1 = np.array(sc.read_h5ad('../datasets/10x-Multiome-Pbmc10k-ATAC.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/10x-Multiome-Pbmc10k-RNA.h5ad').to_df()).astype('float32')
+    '''x1 = np.array(sc.read_h5ad('../datasets/10x-Multiome-pbmc10k/10x-Multiome-pbmc10k-ATAC.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/10x-Multiome-pbmc10k/10x-Multiome-pbmc10k-RNA.h5ad').to_df()).astype('float32')
     y = None'''
 
     # gene filter
