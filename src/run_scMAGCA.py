@@ -76,8 +76,8 @@ if __name__ == "__main__":
     '''x1 = np.array(sc.read_h5ad('../datasets/pbmc_10X_public/pbmc_10X_atac_public.h5ad').to_df()).astype('float32')
     x2 = np.array(sc.read_h5ad('../datasets/pbmc_10X_public/pbmc_10X_rna_public.h5ad').to_df()).astype('float32')
     y = None'''
-    '''x1 = np.array(sc.read_h5ad('../datasets/10x-Multiome-pbmc10k/10x-Multiome-pbmc10k-ATAC.h5ad').to_df()).astype('float32')
-    x2 = np.array(sc.read_h5ad('../datasets/10x-Multiome-pbmc10k/10x-Multiome-pbmc10k-RNA.h5ad').to_df()).astype('float32')
+    '''x1 = np.array(sc.read_h5ad('../datasets/10X-Multiome-pbmc10k/10x-Multiome-pbmc10k-ATAC.h5ad').to_df()).astype('float32')
+    x2 = np.array(sc.read_h5ad('../datasets/10X-Multiome-pbmc10k/10x-Multiome-pbmc10k-RNA.h5ad').to_df()).astype('float32')
     y = None'''
 
     # gene filter
