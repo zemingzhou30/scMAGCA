@@ -1,4 +1,4 @@
-# Example Real datasets
+# Example real datasets
 
 Example datasets are in h5 format and can be downloaded from https://pan.baidu.com/s/12eSdzQLEDml_0nXflYgF1w?pwd=exsk 
 
