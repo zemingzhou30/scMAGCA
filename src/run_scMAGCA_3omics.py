@@ -44,12 +44,12 @@ if __name__ == "__main__":
     torch.backends.cudnn.benchmark = False
 
     ### Read dataset
-    x1 = sc.read_h5ad('../datasets/GSE158013/GSM4949911_adt.h5ad').layers['counts']
-    feature1 = sc.read_h5ad('../datasets/GSE158013/GSM4949911_adt.h5ad').var.index
-    x2 = sc.read_h5ad('../datasets/GSE158013/GSM4949911_atac.h5ad').layers['counts'].A
-    feature2 = sc.read_h5ad('../datasets/GSE158013/GSM4949911_atac.h5ad').var.index
-    x3 = sc.read_h5ad('../datasets/GSE158013/GSM4949911_rna.h5ad').layers['counts'].A
-    feature3 = sc.read_h5ad('../datasets/GSE158013/GSM4949911_rna.h5ad').var.index
+    x1 = sc.read_h5ad('../datasets/GSE158013/GSE158013_adt.h5ad').layers['counts']
+    feature1 = sc.read_h5ad('../datasets/GSE158013/GSE158013_adt.h5ad').var.index
+    x2 = sc.read_h5ad('../datasets/GSE158013/GSE158013_atac.h5ad').layers['counts'].A
+    feature2 = sc.read_h5ad('../datasets/GSE158013/GSE158013_atac.h5ad').var.index
+    x3 = sc.read_h5ad('../datasets/GSE158013/GSE158013_rna.h5ad').layers['counts'].A
+    feature3 = sc.read_h5ad('../datasets/GSE158013/GSE158013_rna.h5ad').var.index
     y = None
 
     # Gene filter
