@@ -11,8 +11,6 @@ We develop a multimodal graph convolutional model based on adversarial learning 
 - [Usage](#Usage)
 - [Output](#Output)
 - [Arguments](#Arguments)
-- [Citation](#Citation)
-- [Contact](#Contact)
 
 ## <a name="diagram">Network diagram</a>
 
