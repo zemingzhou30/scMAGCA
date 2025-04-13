@@ -1,1 +1,1 @@
-$python3 -m pip freeze
+$python3 pip freeze
