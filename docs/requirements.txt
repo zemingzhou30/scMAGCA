@@ -176,8 +176,6 @@ rsa==4.9
 scanpy==1.9.6
 scikit-learn==0.22.1
 scikit-misc==0.2.0
-scipy==1.4.1
-scMAGCA==1.0.1
 scvi-tools==0.20.3
 seaborn==0.12.2
 SecretStorage==3.3.3
