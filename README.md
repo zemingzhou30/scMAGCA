@@ -1,20 +1,15 @@
 # scMAGCA
 
-Single Cell Multi-omics adversarial graph convolutional autoencoder (**scMAGCA v1.0.1**)
+Single Cell Multi-omics adversarial graph convolutional autoencoder
 
 We develop a multimodal graph convolutional model based on adversarial learning (scMAGCA) to jointly analyze scMulti-omics efficiently. scMAGCA effectively integrates scMulti-omics data and learns the joint representation.  Extensive experiments demonstrate that scMAGCA exhibits superior clustering performance, outperforming existing multi-modal and single-modal clustering techniques across various single-cell multimodal datasets including CITE-seq datasets and SMAGE-seq datasets.
 
 ## Table of contents
 
-- [Network diagram](#diagram)
 - [Dependencies](#Dependencies)
 - [Usage](#Usage)
 - [Output](#Output)
 - [Arguments](#Arguments)
-
-## <a name="diagram">Network diagram</a>
-
-![scMAGCA/network.png at main · zemingzhou30/scMAGCA](https://github.com/zemingzhou30/scMAGCA/blob/main/network.png?raw=true)
 
 ## <a name="Dependencies">Dependencies</a>
 
