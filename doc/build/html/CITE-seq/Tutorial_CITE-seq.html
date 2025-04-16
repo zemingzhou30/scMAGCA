@@ -1,0 +1,1062 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial:CITE-seq (well-labeled) &mdash; scMAGCA 1.0.1 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=3ff59fb2"></script>
+      <script src="../_static/doctools.js?v=888ff710"></script>
+      <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/translations.js?v=beaddf03"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            scMAGCA
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Tutorial:CITE-seq (well-labeled)</a><ul>
+<li><a class="reference internal" href="#Loading-package">Loading package</a></li>
+<li><a class="reference internal" href="#Reading-CITE-seq-dataset">Reading CITE-seq dataset</a></li>
+<li><a class="reference internal" href="#Training-the-model">Training the model</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">scMAGCA</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial:CITE-seq (well-labeled)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/CITE-seq/Tutorial_CITE-seq.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Tutorial:CITE-seq-(well-labeled)">
+<h1>Tutorial:CITE-seq (well-labeled)<a class="headerlink" href="#Tutorial:CITE-seq-(well-labeled)" title="此标题的永久链接">¶</a></h1>
+<p>In this tutorial, we will show how to cluster CITE-seq data using scMAGCA. As an example, we use a human peripheral blood sample dataset ‘10Xkpbmc’ containing 713 cells. It contains two omics data, with ADT containing 17 features and RNA containing 33,538 features, and is well-labeled.</p>
+<section id="Loading-package">
+<h2>Loading package<a class="headerlink" href="#Loading-package" title="此标题的永久链接">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">scanpy</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">preprocess</span> <span class="kn">import</span> <span class="n">read_dataset</span><span class="p">,</span> <span class="n">preprocess_dataset</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scMAGCA</span> <span class="kn">import</span> <span class="n">scMultiCluster</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set seed</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">3407</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">3407</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">3407</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Reading-CITE-seq-dataset">
+<h2>Reading CITE-seq dataset<a class="headerlink" href="#Reading-CITE-seq-dataset" title="此标题的永久链接">¶</a></h2>
+<p>The required input files include:</p>
+<ol class="arabic simple">
+<li><p>x1: protein abundance matrix (data format is h5ad file) : 10x1kpbmc_adt.h5ad;</p></li>
+<li><p>x2: Gene expression matrix (data format is h5ad file) : 10x1kpbmc_rna.h5ad;</p></li>
+<li><p>Real label (stored as csv file) : 10x1kpbmc_label.csv.</p></li>
+</ol>
+<p>To ensure reproducibility of the results, please read the above data as follows:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="s1">&#39;../datasets/10x1kpbmc/10x1kpbmc_adt.h5ad&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_df</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="s1">&#39;../datasets/10x1kpbmc/10x1kpbmc_rna.h5ad&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_df</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;../datasets/10x1kpbmc/10x1kpbmc_label.csv&#39;</span><span class="p">)[</span><span class="s1">&#39;Cluster&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(array([[3.000e+00, 6.000e+00, 2.000e+00, ..., 3.000e+00, 4.000e+00,
+         1.000e+00],
+        [3.444e+03, 3.995e+03, 4.900e+01, ..., 6.000e+00, 8.000e+00,
+         2.000e+00],
+        [1.733e+03, 3.401e+03, 2.300e+01, ..., 1.000e+00, 6.000e+00,
+         0.000e+00],
+        ...,
+        [3.000e+00, 1.190e+02, 1.800e+01, ..., 1.000e+00, 1.000e+00,
+         2.000e+00],
+        [1.700e+01, 8.190e+02, 1.100e+01, ..., 3.000e+00, 2.000e+00,
+         2.000e+00],
+        [9.000e+00, 1.300e+01, 1.000e+01, ..., 4.000e+00, 1.100e+01,
+         5.000e+00]], dtype=float32),
+ array([[0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        ...,
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.]], dtype=float32),
+ array([5., 1., 1., 1., 1., 3., 3., 3., 1., 1., 3., 1., 1., 1., 5., 3., 3.,
+        3., 3., 2., 3., 1., 2., 1., 3., 4., 2., 5., 1., 1., 2., 5., 1., 4.,
+        2., 1., 3., 5., 2., 4., 1., 1., 3., 1., 1., 5., 1., 1., 1., 5., 5.,
+        2., 4., 1., 3., 3., 1., 4., 2., 5., 2., 1., 1., 1., 5., 1., 3., 2.,
+        3., 4., 2., 1., 2., 4., 3., 1., 3., 1., 1., 1., 1., 3., 4., 4., 2.,
+        4., 2., 3., 5., 5., 2., 4., 3., 4., 1., 1., 5., 2., 1., 1., 2., 1.,
+        1., 3., 1., 4., 1., 4., 1., 3., 4., 2., 5., 1., 1., 4., 1., 4., 2.,
+        5., 4., 4., 4., 2., 1., 5., 2., 1., 1., 3., 2., 2., 1., 1., 4., 3.,
+        4., 1., 4., 3., 1., 2., 1., 1., 5., 1., 3., 3., 3., 3., 5., 4., 3.,
+        4., 1., 1., 1., 2., 3., 3., 3., 2., 2., 1., 4., 3., 3., 4., 4., 4.,
+        1., 4., 1., 3., 5., 3., 5., 2., 3., 5., 1., 1., 2., 1., 3., 1., 2.,
+        1., 1., 5., 4., 4., 4., 2., 2., 5., 1., 2., 2., 2., 5., 2., 2., 1.,
+        2., 4., 3., 4., 1., 4., 3., 4., 1., 4., 3., 3., 2., 1., 2., 3., 4.,
+        3., 1., 2., 2., 2., 3., 4., 3., 5., 1., 2., 2., 3., 1., 2., 1., 4.,
+        5., 4., 2., 5., 1., 5., 2., 2., 3., 1., 1., 1., 1., 4., 5., 3., 4.,
+        3., 3., 4., 4., 1., 1., 1., 1., 4., 2., 1., 1., 1., 1., 3., 2., 2.,
+        1., 3., 2., 1., 4., 4., 4., 4., 2., 4., 3., 2., 1., 1., 5., 4., 1.,
+        2., 1., 2., 2., 1., 4., 1., 4., 1., 1., 3., 1., 4., 3., 1., 5., 2.,
+        3., 2., 1., 2., 2., 1., 4., 4., 1., 2., 2., 5., 1., 2., 1., 1., 3.,
+        2., 1., 1., 1., 4., 2., 2., 4., 4., 4., 4., 4., 4., 1., 2., 4., 3.,
+        4., 4., 2., 3., 4., 4., 1., 2., 1., 1., 1., 1., 5., 3., 2., 3., 1.,
+        1., 5., 3., 4., 1., 1., 3., 5., 2., 1., 5., 2., 1., 2., 3., 1., 1.,
+        1., 4., 3., 3., 2., 1., 3., 4., 2., 3., 1., 3., 1., 2., 2., 4., 1.,
+        3., 3., 4., 1., 1., 1., 1., 1., 5., 2., 1., 5., 5., 1., 3., 2., 1.,
+        1., 4., 4., 4., 3., 2., 5., 1., 3., 1., 1., 2., 2., 1., 1., 4., 3.,
+        1., 5., 5., 1., 4., 4., 1., 2., 1., 2., 2., 3., 1., 1., 2., 1., 1.,
+        5., 4., 5., 3., 4., 5., 1., 2., 1., 2., 5., 4., 3., 3., 1., 1., 3.,
+        1., 2., 5., 1., 3., 2., 5., 1., 3., 2., 1., 2., 5., 2., 1., 2., 1.,
+        1., 2., 3., 1., 2., 3., 2., 2., 2., 5., 1., 4., 5., 1., 3., 4., 5.,
+        4., 2., 1., 1., 1., 2., 5., 2., 3., 4., 4., 5., 1., 2., 1., 2., 1.,
+        4., 5., 5., 1., 3., 5., 3., 1., 2., 1., 4., 1., 1., 5., 5., 2., 4.,
+        2., 1., 4., 2., 3., 4., 3., 4., 3., 2., 5., 4., 1., 3., 3., 3., 2.,
+        2., 3., 1., 1., 1., 1., 2., 1., 4., 2., 3., 3., 1., 2., 4., 2., 4.,
+        2., 1., 4., 4., 1., 1., 2., 5., 3., 1., 1., 3., 2., 4., 1., 4., 2.,
+        1., 4., 4., 2., 4., 1., 4., 4., 1., 5., 4., 2., 3., 1., 5., 1., 4.,
+        2., 1., 1., 1., 3., 5., 3., 2., 3., 1., 1., 2., 5., 4., 1., 3., 4.,
+        4., 1., 2., 4., 2., 5., 1., 3., 3., 3., 3., 2., 1., 4., 2., 2., 3.,
+        5., 3., 1., 1., 3., 5., 2., 5., 4., 3., 4., 1., 2., 1., 2., 5., 2.,
+        5., 3., 1., 3., 1., 1., 1., 2., 4., 2., 1., 4., 2., 2., 3., 1., 3.,
+        1., 3., 2., 1., 3., 5., 5., 4., 2., 3., 2., 5., 3., 1., 2., 4., 1.,
+        3., 2., 3., 1., 4., 1., 4., 2., 2., 2., 1., 1., 2., 5., 1., 1., 2.,
+        2., 1., 5., 5., 5., 1., 3., 2., 1., 1., 4., 1., 2., 4., 3., 5.],
+       dtype=float32))
+</pre></div></div>
+</div>
+<p>Due to the small number of features in ADT omics data and the large gap between the feature dimensions of RNA omics, for CITE-seq data, we only select high-expression features for RNA omics (the default number of chosen genes is 2000).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[62]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">importantGenes</span> <span class="o">=</span> <span class="n">geneSelection</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">x2</span><span class="p">[:,</span> <span class="n">importantGenes</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Chosen offset: 0.21
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/CITE-seq_Tutorial_CITE-seq_11_1.png" src="../_images/CITE-seq_Tutorial_CITE-seq_11_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adata1</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
+<span class="n">adata1</span> <span class="o">=</span> <span class="n">read_dataset</span><span class="p">(</span><span class="n">adata1</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">adata1</span> <span class="o">=</span> <span class="n">preprocess_dataset</span><span class="p">(</span><span class="n">adata1</span><span class="p">,</span> <span class="n">normalize_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">logtrans_input</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+### Autoencoder: Successfully preprocessed 17 features and 713 cells.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adata1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+AnnData object with n_obs × n_vars = 713 × 17
+    obs: &#39;DCA_split&#39;, &#39;size_factors&#39;
+    var: &#39;mean&#39;, &#39;std&#39;
+    uns: &#39;log1p&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adata2</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span>
+<span class="n">adata2</span> <span class="o">=</span> <span class="n">read_dataset</span><span class="p">(</span><span class="n">adata2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">adata2</span> <span class="o">=</span> <span class="n">preprocess_dataset</span><span class="p">(</span><span class="n">adata2</span><span class="p">,</span> <span class="n">normalize_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">logtrans_input</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+### Autoencoder: Successfully preprocessed 1999 features and 713 cells.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adata2</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+AnnData object with n_obs × n_vars = 713 × 1999
+    obs: &#39;DCA_split&#39;, &#39;size_factors&#39;
+    var: &#39;mean&#39;, &#39;std&#39;
+    uns: &#39;log1p&#39;
+</pre></div></div>
+</div>
+</section>
+<section id="Training-the-model">
+<h2>Training the model<a class="headerlink" href="#Training-the-model" title="此标题的永久链接">¶</a></h2>
+<p>Our model training is divided into two stages: pre-training stage and formal training stage. The number of epochs in the pre-training phase is set to 400, while the number in the formal training is 2000. In formal training, if the change in training results reaches a set threshold, it will end early.</p>
+<p>After the training, the potential representations and predicted label values obtained by scMAGCA are saved to the corresponding folder of the data set and can be used for subsequent downstream analysis.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">scMultiCluster</span><span class="p">(</span><span class="n">input_dim1</span><span class="o">=</span><span class="n">adata1</span><span class="o">.</span><span class="n">n_vars</span><span class="p">,</span> <span class="n">input_dim2</span><span class="o">=</span><span class="n">adata2</span><span class="o">.</span><span class="n">n_vars</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+scMultiCluster(
+  (encoder): Encoder(
+    (stacked_gnn): ModuleList(
+      (0): GCNConv(2016, 1024)
+      (1): GCNConv(1024, 256)
+      (2): GCNConv(256, 64)
+      (3): GCNConv(64, 32)
+    )
+    (stacked_bns): ModuleList(
+      (0): BatchNorm1d(1024, eps=1e-05, momentum=0.01, affine=True, track_running_stats=True)
+      (1): BatchNorm1d(256, eps=1e-05, momentum=0.01, affine=True, track_running_stats=True)
+      (2): BatchNorm1d(64, eps=1e-05, momentum=0.01, affine=True, track_running_stats=True)
+      (3): BatchNorm1d(32, eps=1e-05, momentum=0.01, affine=True, track_running_stats=True)
+    )
+    (stacked_prelus): ModuleList(
+      (0-3): 4 x PReLU(num_parameters=1)
+    )
+  )
+  (decoder): Sequential(
+    (0): Linear(in_features=32, out_features=512, bias=True)
+    (1): BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (2): PReLU(num_parameters=1)
+    (3): Linear(in_features=512, out_features=1024, bias=True)
+    (4): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (5): PReLU(num_parameters=1)
+    (6): Linear(in_features=1024, out_features=2016, bias=True)
+  )
+  (dec_mean): Sequential(
+    (0): Linear(in_features=32, out_features=256, bias=True)
+    (1): Linear(in_features=256, out_features=512, bias=True)
+    (2): Linear(in_features=512, out_features=2016, bias=True)
+    (3): MeanAct()
+  )
+  (dec_disp): Sequential(
+    (0): Linear(in_features=32, out_features=256, bias=True)
+    (1): Linear(in_features=256, out_features=512, bias=True)
+    (2): Linear(in_features=512, out_features=2016, bias=True)
+    (3): DispAct()
+  )
+  (dec_pi): Sequential(
+    (0): Linear(in_features=32, out_features=256, bias=True)
+    (1): Linear(in_features=256, out_features=512, bias=True)
+    (2): Linear(in_features=512, out_features=2016, bias=True)
+    (3): Sigmoid()
+  )
+  (zinb_loss): ZINBLoss()
+)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pretrain_latent</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pretrain_autoencoder</span><span class="p">(</span>
+                        <span class="n">X1</span><span class="o">=</span><span class="n">adata1</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">X2</span><span class="o">=</span><span class="n">adata2</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">X1_raw</span><span class="o">=</span><span class="n">adata1</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">X2_raw</span><span class="o">=</span><span class="n">adata2</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">X</span><span class="p">,</span>
+                        <span class="n">epochs</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s1">&#39;10x1kpbmc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Pretraining stage
+Pretrain epoch 1, recon_loss:1.179670, zinb_loss:3.310244, adversial_loss:1.358601
+Pretrain epoch 2, recon_loss:1.053315, zinb_loss:2.773893, adversial_loss:1.373735
+Pretrain epoch 3, recon_loss:0.862565, zinb_loss:2.396230, adversial_loss:1.360926
+Pretrain epoch 4, recon_loss:0.777968, zinb_loss:2.083947, adversial_loss:1.360451
+Pretrain epoch 5, recon_loss:0.754381, zinb_loss:1.846060, adversial_loss:1.360216
+Pretrain epoch 6, recon_loss:0.733581, zinb_loss:1.646314, adversial_loss:1.355564
+Pretrain epoch 7, recon_loss:0.721840, zinb_loss:1.484166, adversial_loss:1.350406
+Pretrain epoch 8, recon_loss:0.717826, zinb_loss:1.361452, adversial_loss:1.347699
+Pretrain epoch 9, recon_loss:0.708908, zinb_loss:1.277065, adversial_loss:1.346102
+Pretrain epoch 10, recon_loss:0.694630, zinb_loss:1.224692, adversial_loss:1.344238
+Pretrain epoch 11, recon_loss:0.684225, zinb_loss:1.194159, adversial_loss:1.342163
+Pretrain epoch 12, recon_loss:0.680018, zinb_loss:1.175642, adversial_loss:1.340560
+Pretrain epoch 13, recon_loss:0.677840, zinb_loss:1.162826, adversial_loss:1.339098
+Pretrain epoch 14, recon_loss:0.675129, zinb_loss:1.152876, adversial_loss:1.337435
+Pretrain epoch 15, recon_loss:0.672355, zinb_loss:1.144369, adversial_loss:1.335139
+Pretrain epoch 16, recon_loss:0.670228, zinb_loss:1.136601, adversial_loss:1.332293
+Pretrain epoch 17, recon_loss:0.667790, zinb_loss:1.129140, adversial_loss:1.329263
+Pretrain epoch 18, recon_loss:0.664680, zinb_loss:1.121876, adversial_loss:1.326783
+Pretrain epoch 19, recon_loss:0.662127, zinb_loss:1.115053, adversial_loss:1.324961
+Pretrain epoch 20, recon_loss:0.660377, zinb_loss:1.108180, adversial_loss:1.323852
+Pretrain epoch 21, recon_loss:0.659001, zinb_loss:1.100873, adversial_loss:1.323825
+Pretrain epoch 22, recon_loss:0.656459, zinb_loss:1.093486, adversial_loss:1.322779
+Pretrain epoch 23, recon_loss:0.654088, zinb_loss:1.086390, adversial_loss:1.321610
+Pretrain epoch 24, recon_loss:0.652294, zinb_loss:1.079503, adversial_loss:1.320213
+Pretrain epoch 25, recon_loss:0.650671, zinb_loss:1.072774, adversial_loss:1.318725
+Pretrain epoch 26, recon_loss:0.648966, zinb_loss:1.066303, adversial_loss:1.317523
+Pretrain epoch 27, recon_loss:0.646991, zinb_loss:1.060190, adversial_loss:1.316257
+Pretrain epoch 28, recon_loss:0.645398, zinb_loss:1.054652, adversial_loss:1.314740
+Pretrain epoch 29, recon_loss:0.643983, zinb_loss:1.049268, adversial_loss:1.312217
+Pretrain epoch 30, recon_loss:0.643025, zinb_loss:1.043892, adversial_loss:1.308721
+Pretrain epoch 31, recon_loss:0.642111, zinb_loss:1.039183, adversial_loss:1.306067
+Pretrain epoch 32, recon_loss:0.640455, zinb_loss:1.034951, adversial_loss:1.304514
+Pretrain epoch 33, recon_loss:0.639247, zinb_loss:1.031011, adversial_loss:1.303380
+Pretrain epoch 34, recon_loss:0.637743, zinb_loss:1.027282, adversial_loss:1.301915
+Pretrain epoch 35, recon_loss:0.636664, zinb_loss:1.023664, adversial_loss:1.300623
+Pretrain epoch 36, recon_loss:0.635682, zinb_loss:1.020120, adversial_loss:1.299578
+Pretrain epoch 37, recon_loss:0.634332, zinb_loss:1.016628, adversial_loss:1.298586
+Pretrain epoch 38, recon_loss:0.633481, zinb_loss:1.013218, adversial_loss:1.298119
+Pretrain epoch 39, recon_loss:0.632329, zinb_loss:1.010160, adversial_loss:1.296602
+Pretrain epoch 40, recon_loss:0.631456, zinb_loss:1.007311, adversial_loss:1.295990
+Pretrain epoch 41, recon_loss:0.630563, zinb_loss:1.004686, adversial_loss:1.294802
+Pretrain epoch 42, recon_loss:0.629735, zinb_loss:1.002095, adversial_loss:1.295299
+Pretrain epoch 43, recon_loss:0.629020, zinb_loss:1.000048, adversial_loss:1.293201
+Pretrain epoch 44, recon_loss:0.628373, zinb_loss:0.997680, adversial_loss:1.293849
+Pretrain epoch 45, recon_loss:0.627905, zinb_loss:0.995719, adversial_loss:1.290645
+Pretrain epoch 46, recon_loss:0.626810, zinb_loss:0.993385, adversial_loss:1.290701
+Pretrain epoch 47, recon_loss:0.626094, zinb_loss:0.991341, adversial_loss:1.289930
+Pretrain epoch 48, recon_loss:0.625388, zinb_loss:0.989542, adversial_loss:1.288692
+Pretrain epoch 49, recon_loss:0.624706, zinb_loss:0.987548, adversial_loss:1.288829
+Pretrain epoch 50, recon_loss:0.624136, zinb_loss:0.986056, adversial_loss:1.287461
+Pretrain epoch 51, recon_loss:0.623274, zinb_loss:0.984164, adversial_loss:1.287607
+Pretrain epoch 52, recon_loss:0.622424, zinb_loss:0.982464, adversial_loss:1.286898
+Pretrain epoch 53, recon_loss:0.621879, zinb_loss:0.981260, adversial_loss:1.285860
+Pretrain epoch 54, recon_loss:0.621108, zinb_loss:0.979639, adversial_loss:1.285778
+Pretrain epoch 55, recon_loss:0.620530, zinb_loss:0.978340, adversial_loss:1.284826
+Pretrain epoch 56, recon_loss:0.619800, zinb_loss:0.977073, adversial_loss:1.284936
+Pretrain epoch 57, recon_loss:0.619347, zinb_loss:0.975783, adversial_loss:1.283673
+Pretrain epoch 58, recon_loss:0.618823, zinb_loss:0.974526, adversial_loss:1.284123
+Pretrain epoch 59, recon_loss:0.618686, zinb_loss:0.973556, adversial_loss:1.282676
+Pretrain epoch 60, recon_loss:0.617441, zinb_loss:0.972172, adversial_loss:1.283096
+Pretrain epoch 61, recon_loss:0.616835, zinb_loss:0.970980, adversial_loss:1.281648
+Pretrain epoch 62, recon_loss:0.615886, zinb_loss:0.969648, adversial_loss:1.281288
+Pretrain epoch 63, recon_loss:0.615350, zinb_loss:0.968580, adversial_loss:1.281277
+Pretrain epoch 64, recon_loss:0.614922, zinb_loss:0.967744, adversial_loss:1.280465
+Pretrain epoch 65, recon_loss:0.614932, zinb_loss:0.967338, adversial_loss:1.280521
+Pretrain epoch 66, recon_loss:0.614976, zinb_loss:0.966357, adversial_loss:1.280103
+Pretrain epoch 67, recon_loss:0.613583, zinb_loss:0.965226, adversial_loss:1.280383
+Pretrain epoch 68, recon_loss:0.613921, zinb_loss:0.965229, adversial_loss:1.278780
+Pretrain epoch 69, recon_loss:0.612545, zinb_loss:0.963646, adversial_loss:1.279052
+Pretrain epoch 70, recon_loss:0.612793, zinb_loss:0.963037, adversial_loss:1.279510
+Pretrain epoch 71, recon_loss:0.611815, zinb_loss:0.961470, adversial_loss:1.278643
+Pretrain epoch 72, recon_loss:0.611546, zinb_loss:0.960857, adversial_loss:1.278122
+Pretrain epoch 73, recon_loss:0.610706, zinb_loss:0.959825, adversial_loss:1.278297
+Pretrain epoch 74, recon_loss:0.610377, zinb_loss:0.959457, adversial_loss:1.278214
+Pretrain epoch 75, recon_loss:0.608972, zinb_loss:0.958782, adversial_loss:1.277103
+Pretrain epoch 76, recon_loss:0.609311, zinb_loss:0.957827, adversial_loss:1.276618
+Pretrain epoch 77, recon_loss:0.608211, zinb_loss:0.957331, adversial_loss:1.277107
+Pretrain epoch 78, recon_loss:0.607739, zinb_loss:0.956897, adversial_loss:1.276694
+Pretrain epoch 79, recon_loss:0.607406, zinb_loss:0.956075, adversial_loss:1.276365
+Pretrain epoch 80, recon_loss:0.607084, zinb_loss:0.955484, adversial_loss:1.276402
+Pretrain epoch 81, recon_loss:0.605922, zinb_loss:0.954734, adversial_loss:1.275925
+Pretrain epoch 82, recon_loss:0.605686, zinb_loss:0.954194, adversial_loss:1.275973
+Pretrain epoch 83, recon_loss:0.605507, zinb_loss:0.954741, adversial_loss:1.275807
+Pretrain epoch 84, recon_loss:0.606017, zinb_loss:0.955828, adversial_loss:1.275457
+Pretrain epoch 85, recon_loss:0.606689, zinb_loss:0.955475, adversial_loss:1.274885
+Pretrain epoch 86, recon_loss:0.603597, zinb_loss:0.952265, adversial_loss:1.275342
+Pretrain epoch 87, recon_loss:0.603961, zinb_loss:0.952641, adversial_loss:1.275476
+Pretrain epoch 88, recon_loss:0.603907, zinb_loss:0.952613, adversial_loss:1.274445
+Pretrain epoch 89, recon_loss:0.602533, zinb_loss:0.950886, adversial_loss:1.273964
+Pretrain epoch 90, recon_loss:0.601846, zinb_loss:0.951025, adversial_loss:1.274571
+Pretrain epoch 91, recon_loss:0.601666, zinb_loss:0.950418, adversial_loss:1.274107
+Pretrain epoch 92, recon_loss:0.600451, zinb_loss:0.950003, adversial_loss:1.272773
+Pretrain epoch 93, recon_loss:0.600263, zinb_loss:0.949291, adversial_loss:1.273564
+Pretrain epoch 94, recon_loss:0.599480, zinb_loss:0.948868, adversial_loss:1.273637
+Pretrain epoch 95, recon_loss:0.599118, zinb_loss:0.948717, adversial_loss:1.272256
+Pretrain epoch 96, recon_loss:0.598330, zinb_loss:0.947870, adversial_loss:1.272520
+Pretrain epoch 97, recon_loss:0.598428, zinb_loss:0.948256, adversial_loss:1.272994
+Pretrain epoch 98, recon_loss:0.599205, zinb_loss:0.948368, adversial_loss:1.272520
+Pretrain epoch 99, recon_loss:0.600360, zinb_loss:0.950071, adversial_loss:1.271988
+Pretrain epoch 100, recon_loss:0.597603, zinb_loss:0.946913, adversial_loss:1.272954
+Pretrain epoch 101, recon_loss:0.598265, zinb_loss:0.948654, adversial_loss:1.273010
+Pretrain epoch 102, recon_loss:0.598125, zinb_loss:0.946708, adversial_loss:1.272140
+Pretrain epoch 103, recon_loss:0.596699, zinb_loss:0.946644, adversial_loss:1.271546
+Pretrain epoch 104, recon_loss:0.596948, zinb_loss:0.945447, adversial_loss:1.271937
+Pretrain epoch 105, recon_loss:0.594884, zinb_loss:0.945366, adversial_loss:1.271829
+Pretrain epoch 106, recon_loss:0.595728, zinb_loss:0.944949, adversial_loss:1.270860
+Pretrain epoch 107, recon_loss:0.593774, zinb_loss:0.944627, adversial_loss:1.270213
+Pretrain epoch 108, recon_loss:0.593907, zinb_loss:0.944016, adversial_loss:1.270924
+Pretrain epoch 109, recon_loss:0.592436, zinb_loss:0.943547, adversial_loss:1.270654
+Pretrain epoch 110, recon_loss:0.593074, zinb_loss:0.943505, adversial_loss:1.269729
+Pretrain epoch 111, recon_loss:0.591259, zinb_loss:0.942827, adversial_loss:1.269440
+Pretrain epoch 112, recon_loss:0.591416, zinb_loss:0.943134, adversial_loss:1.269742
+Pretrain epoch 113, recon_loss:0.590118, zinb_loss:0.942558, adversial_loss:1.268840
+Pretrain epoch 114, recon_loss:0.591088, zinb_loss:0.942681, adversial_loss:1.268550
+Pretrain epoch 115, recon_loss:0.591063, zinb_loss:0.943514, adversial_loss:1.268707
+Pretrain epoch 116, recon_loss:0.591478, zinb_loss:0.946264, adversial_loss:1.268885
+Pretrain epoch 117, recon_loss:0.592222, zinb_loss:0.947532, adversial_loss:1.267890
+Pretrain epoch 118, recon_loss:0.590538, zinb_loss:0.942911, adversial_loss:1.267889
+Pretrain epoch 119, recon_loss:0.588685, zinb_loss:0.942405, adversial_loss:1.267961
+Pretrain epoch 120, recon_loss:0.590820, zinb_loss:0.943007, adversial_loss:1.267911
+Pretrain epoch 121, recon_loss:0.587976, zinb_loss:0.941211, adversial_loss:1.267495
+Pretrain epoch 122, recon_loss:0.588107, zinb_loss:0.941682, adversial_loss:1.267016
+Pretrain epoch 123, recon_loss:0.587850, zinb_loss:0.941220, adversial_loss:1.267151
+Pretrain epoch 124, recon_loss:0.586103, zinb_loss:0.940096, adversial_loss:1.266919
+Pretrain epoch 125, recon_loss:0.586695, zinb_loss:0.940915, adversial_loss:1.266283
+Pretrain epoch 126, recon_loss:0.584600, zinb_loss:0.939462, adversial_loss:1.266199
+Pretrain epoch 127, recon_loss:0.584715, zinb_loss:0.939992, adversial_loss:1.266392
+Pretrain epoch 128, recon_loss:0.583646, zinb_loss:0.939460, adversial_loss:1.265532
+Pretrain epoch 129, recon_loss:0.583115, zinb_loss:0.938871, adversial_loss:1.265500
+Pretrain epoch 130, recon_loss:0.582615, zinb_loss:0.939027, adversial_loss:1.265729
+Pretrain epoch 131, recon_loss:0.581923, zinb_loss:0.938283, adversial_loss:1.265340
+Pretrain epoch 132, recon_loss:0.581585, zinb_loss:0.938320, adversial_loss:1.264889
+Pretrain epoch 133, recon_loss:0.580901, zinb_loss:0.937896, adversial_loss:1.265080
+Pretrain epoch 134, recon_loss:0.580363, zinb_loss:0.937661, adversial_loss:1.264922
+Pretrain epoch 135, recon_loss:0.579973, zinb_loss:0.937575, adversial_loss:1.264256
+Pretrain epoch 136, recon_loss:0.579230, zinb_loss:0.937157, adversial_loss:1.264609
+Pretrain epoch 137, recon_loss:0.578799, zinb_loss:0.937015, adversial_loss:1.264434
+Pretrain epoch 138, recon_loss:0.578477, zinb_loss:0.936980, adversial_loss:1.263689
+Pretrain epoch 139, recon_loss:0.578071, zinb_loss:0.936623, adversial_loss:1.264085
+Pretrain epoch 140, recon_loss:0.577605, zinb_loss:0.936654, adversial_loss:1.263607
+Pretrain epoch 141, recon_loss:0.577493, zinb_loss:0.936722, adversial_loss:1.263513
+Pretrain epoch 142, recon_loss:0.577291, zinb_loss:0.937000, adversial_loss:1.263335
+Pretrain epoch 143, recon_loss:0.576545, zinb_loss:0.937728, adversial_loss:1.263499
+Pretrain epoch 144, recon_loss:0.578736, zinb_loss:0.939613, adversial_loss:1.262442
+Pretrain epoch 145, recon_loss:0.582711, zinb_loss:0.939815, adversial_loss:1.263414
+Pretrain epoch 146, recon_loss:0.582419, zinb_loss:0.936777, adversial_loss:1.262378
+Pretrain epoch 147, recon_loss:0.577070, zinb_loss:0.935723, adversial_loss:1.262114
+Pretrain epoch 148, recon_loss:0.577505, zinb_loss:0.937018, adversial_loss:1.262499
+Pretrain epoch 149, recon_loss:0.577640, zinb_loss:0.935947, adversial_loss:1.261826
+Pretrain epoch 150, recon_loss:0.575486, zinb_loss:0.934979, adversial_loss:1.261736
+Pretrain epoch 151, recon_loss:0.575607, zinb_loss:0.935294, adversial_loss:1.262205
+Pretrain epoch 152, recon_loss:0.574304, zinb_loss:0.935022, adversial_loss:1.261621
+Pretrain epoch 153, recon_loss:0.575306, zinb_loss:0.934522, adversial_loss:1.261178
+Pretrain epoch 154, recon_loss:0.572280, zinb_loss:0.934396, adversial_loss:1.261574
+Pretrain epoch 155, recon_loss:0.572240, zinb_loss:0.934089, adversial_loss:1.261276
+Pretrain epoch 156, recon_loss:0.571514, zinb_loss:0.934011, adversial_loss:1.261041
+Pretrain epoch 157, recon_loss:0.570485, zinb_loss:0.933899, adversial_loss:1.260774
+Pretrain epoch 158, recon_loss:0.569664, zinb_loss:0.933655, adversial_loss:1.260707
+Pretrain epoch 159, recon_loss:0.569227, zinb_loss:0.933532, adversial_loss:1.260713
+Pretrain epoch 160, recon_loss:0.568005, zinb_loss:0.933317, adversial_loss:1.260352
+Pretrain epoch 161, recon_loss:0.568140, zinb_loss:0.933409, adversial_loss:1.260047
+Pretrain epoch 162, recon_loss:0.568237, zinb_loss:0.933763, adversial_loss:1.260389
+Pretrain epoch 163, recon_loss:0.567785, zinb_loss:0.935789, adversial_loss:1.259585
+Pretrain epoch 164, recon_loss:0.572782, zinb_loss:0.941099, adversial_loss:1.260909
+Pretrain epoch 165, recon_loss:0.574854, zinb_loss:0.941256, adversial_loss:1.260053
+Pretrain epoch 166, recon_loss:0.571536, zinb_loss:0.934069, adversial_loss:1.259973
+Pretrain epoch 167, recon_loss:0.574416, zinb_loss:0.936030, adversial_loss:1.260518
+Pretrain epoch 168, recon_loss:0.569643, zinb_loss:0.934969, adversial_loss:1.259938
+Pretrain epoch 169, recon_loss:0.569789, zinb_loss:0.933940, adversial_loss:1.259906
+Pretrain epoch 170, recon_loss:0.567910, zinb_loss:0.933777, adversial_loss:1.260010
+Pretrain epoch 171, recon_loss:0.568514, zinb_loss:0.933285, adversial_loss:1.259891
+Pretrain epoch 172, recon_loss:0.565946, zinb_loss:0.933049, adversial_loss:1.259461
+Pretrain epoch 173, recon_loss:0.566411, zinb_loss:0.932422, adversial_loss:1.259835
+Pretrain epoch 174, recon_loss:0.563918, zinb_loss:0.932656, adversial_loss:1.259749
+Pretrain epoch 175, recon_loss:0.564549, zinb_loss:0.932068, adversial_loss:1.259296
+Pretrain epoch 176, recon_loss:0.562717, zinb_loss:0.931993, adversial_loss:1.259141
+Pretrain epoch 177, recon_loss:0.562190, zinb_loss:0.931494, adversial_loss:1.259244
+Pretrain epoch 178, recon_loss:0.561238, zinb_loss:0.931572, adversial_loss:1.259254
+Pretrain epoch 179, recon_loss:0.560794, zinb_loss:0.931173, adversial_loss:1.258906
+Pretrain epoch 180, recon_loss:0.559483, zinb_loss:0.931114, adversial_loss:1.258742
+Pretrain epoch 181, recon_loss:0.558810, zinb_loss:0.930846, adversial_loss:1.258673
+Pretrain epoch 182, recon_loss:0.557942, zinb_loss:0.930764, adversial_loss:1.258663
+Pretrain epoch 183, recon_loss:0.557357, zinb_loss:0.930695, adversial_loss:1.258276
+Pretrain epoch 184, recon_loss:0.556984, zinb_loss:0.930571, adversial_loss:1.258297
+Pretrain epoch 185, recon_loss:0.556746, zinb_loss:0.930732, adversial_loss:1.257903
+Pretrain epoch 186, recon_loss:0.558162, zinb_loss:0.931001, adversial_loss:1.258457
+Pretrain epoch 187, recon_loss:0.563326, zinb_loss:0.931754, adversial_loss:1.257512
+Pretrain epoch 188, recon_loss:0.562017, zinb_loss:0.931675, adversial_loss:1.258373
+Pretrain epoch 189, recon_loss:0.558887, zinb_loss:0.931083, adversial_loss:1.256987
+Pretrain epoch 190, recon_loss:0.555452, zinb_loss:0.930072, adversial_loss:1.257520
+Pretrain epoch 191, recon_loss:0.556445, zinb_loss:0.930590, adversial_loss:1.257479
+Pretrain epoch 192, recon_loss:0.555254, zinb_loss:0.931529, adversial_loss:1.257116
+Pretrain epoch 193, recon_loss:0.555493, zinb_loss:0.930609, adversial_loss:1.257220
+Pretrain epoch 194, recon_loss:0.554808, zinb_loss:0.929856, adversial_loss:1.256895
+Pretrain epoch 195, recon_loss:0.554252, zinb_loss:0.929679, adversial_loss:1.256472
+Pretrain epoch 196, recon_loss:0.553550, zinb_loss:0.929222, adversial_loss:1.257241
+Pretrain epoch 197, recon_loss:0.550400, zinb_loss:0.928963, adversial_loss:1.256553
+Pretrain epoch 198, recon_loss:0.550799, zinb_loss:0.929040, adversial_loss:1.256077
+Pretrain epoch 199, recon_loss:0.550205, zinb_loss:0.928932, adversial_loss:1.256700
+Pretrain epoch 200, recon_loss:0.548488, zinb_loss:0.928861, adversial_loss:1.256489
+Pretrain epoch 201, recon_loss:0.549529, zinb_loss:0.929483, adversial_loss:1.255842
+Pretrain epoch 202, recon_loss:0.552430, zinb_loss:0.930490, adversial_loss:1.255978
+Pretrain epoch 203, recon_loss:0.555417, zinb_loss:0.932157, adversial_loss:1.256537
+Pretrain epoch 204, recon_loss:0.552969, zinb_loss:0.932155, adversial_loss:1.255958
+Pretrain epoch 205, recon_loss:0.548828, zinb_loss:0.928827, adversial_loss:1.255473
+Pretrain epoch 206, recon_loss:0.547778, zinb_loss:0.928655, adversial_loss:1.255564
+Pretrain epoch 207, recon_loss:0.549267, zinb_loss:0.929921, adversial_loss:1.255289
+Pretrain epoch 208, recon_loss:0.547404, zinb_loss:0.929111, adversial_loss:1.255101
+Pretrain epoch 209, recon_loss:0.545754, zinb_loss:0.928058, adversial_loss:1.255139
+Pretrain epoch 210, recon_loss:0.545914, zinb_loss:0.928491, adversial_loss:1.255020
+Pretrain epoch 211, recon_loss:0.544403, zinb_loss:0.928265, adversial_loss:1.254906
+Pretrain epoch 212, recon_loss:0.543415, zinb_loss:0.927735, adversial_loss:1.255028
+Pretrain epoch 213, recon_loss:0.543553, zinb_loss:0.927718, adversial_loss:1.254846
+Pretrain epoch 214, recon_loss:0.540635, zinb_loss:0.927378, adversial_loss:1.254630
+Pretrain epoch 215, recon_loss:0.541757, zinb_loss:0.927329, adversial_loss:1.254627
+Pretrain epoch 216, recon_loss:0.540345, zinb_loss:0.927143, adversial_loss:1.254506
+Pretrain epoch 217, recon_loss:0.538196, zinb_loss:0.926944, adversial_loss:1.254498
+Pretrain epoch 218, recon_loss:0.538600, zinb_loss:0.926930, adversial_loss:1.254115
+Pretrain epoch 219, recon_loss:0.537008, zinb_loss:0.926748, adversial_loss:1.254303
+Pretrain epoch 220, recon_loss:0.536594, zinb_loss:0.926706, adversial_loss:1.254115
+Pretrain epoch 221, recon_loss:0.539298, zinb_loss:0.926827, adversial_loss:1.253990
+Pretrain epoch 222, recon_loss:0.545875, zinb_loss:0.927305, adversial_loss:1.253899
+Pretrain epoch 223, recon_loss:0.547195, zinb_loss:0.927331, adversial_loss:1.254571
+Pretrain epoch 224, recon_loss:0.542174, zinb_loss:0.927121, adversial_loss:1.253541
+Pretrain epoch 225, recon_loss:0.541037, zinb_loss:0.926618, adversial_loss:1.253116
+Pretrain epoch 226, recon_loss:0.541850, zinb_loss:0.926372, adversial_loss:1.253573
+Pretrain epoch 227, recon_loss:0.537266, zinb_loss:0.926366, adversial_loss:1.253625
+Pretrain epoch 228, recon_loss:0.538527, zinb_loss:0.926530, adversial_loss:1.253038
+Pretrain epoch 229, recon_loss:0.536627, zinb_loss:0.926048, adversial_loss:1.253560
+Pretrain epoch 230, recon_loss:0.534582, zinb_loss:0.925871, adversial_loss:1.253318
+Pretrain epoch 231, recon_loss:0.534135, zinb_loss:0.925740, adversial_loss:1.253361
+Pretrain epoch 232, recon_loss:0.532720, zinb_loss:0.925627, adversial_loss:1.253266
+Pretrain epoch 233, recon_loss:0.531950, zinb_loss:0.925653, adversial_loss:1.252956
+Pretrain epoch 234, recon_loss:0.531895, zinb_loss:0.925733, adversial_loss:1.253239
+Pretrain epoch 235, recon_loss:0.532459, zinb_loss:0.926130, adversial_loss:1.252955
+Pretrain epoch 236, recon_loss:0.536625, zinb_loss:0.927588, adversial_loss:1.252945
+Pretrain epoch 237, recon_loss:0.539024, zinb_loss:0.930635, adversial_loss:1.253257
+Pretrain epoch 238, recon_loss:0.537922, zinb_loss:0.931437, adversial_loss:1.252468
+Pretrain epoch 239, recon_loss:0.532929, zinb_loss:0.928103, adversial_loss:1.252972
+Pretrain epoch 240, recon_loss:0.535495, zinb_loss:0.926489, adversial_loss:1.252351
+Pretrain epoch 241, recon_loss:0.533118, zinb_loss:0.926977, adversial_loss:1.252387
+Pretrain epoch 242, recon_loss:0.532192, zinb_loss:0.926168, adversial_loss:1.252556
+Pretrain epoch 243, recon_loss:0.531266, zinb_loss:0.925452, adversial_loss:1.252050
+Pretrain epoch 244, recon_loss:0.529536, zinb_loss:0.925518, adversial_loss:1.252217
+Pretrain epoch 245, recon_loss:0.529919, zinb_loss:0.925040, adversial_loss:1.252160
+Pretrain epoch 246, recon_loss:0.526950, zinb_loss:0.924811, adversial_loss:1.252068
+Pretrain epoch 247, recon_loss:0.526884, zinb_loss:0.924734, adversial_loss:1.252079
+Pretrain epoch 248, recon_loss:0.524632, zinb_loss:0.924482, adversial_loss:1.252126
+Pretrain epoch 249, recon_loss:0.523845, zinb_loss:0.924345, adversial_loss:1.251854
+Pretrain epoch 250, recon_loss:0.523529, zinb_loss:0.924314, adversial_loss:1.252120
+Pretrain epoch 251, recon_loss:0.521685, zinb_loss:0.924291, adversial_loss:1.251458
+Pretrain epoch 252, recon_loss:0.520432, zinb_loss:0.924136, adversial_loss:1.251710
+Pretrain epoch 253, recon_loss:0.520313, zinb_loss:0.924272, adversial_loss:1.251487
+Pretrain epoch 254, recon_loss:0.521664, zinb_loss:0.924356, adversial_loss:1.251635
+Pretrain epoch 255, recon_loss:0.523035, zinb_loss:0.924369, adversial_loss:1.251112
+Pretrain epoch 256, recon_loss:0.525831, zinb_loss:0.924372, adversial_loss:1.251610
+Pretrain epoch 257, recon_loss:0.522973, zinb_loss:0.924103, adversial_loss:1.250789
+Pretrain epoch 258, recon_loss:0.518241, zinb_loss:0.923893, adversial_loss:1.251200
+Pretrain epoch 259, recon_loss:0.517817, zinb_loss:0.923991, adversial_loss:1.250929
+Pretrain epoch 260, recon_loss:0.518039, zinb_loss:0.923839, adversial_loss:1.250690
+Pretrain epoch 261, recon_loss:0.515956, zinb_loss:0.923447, adversial_loss:1.250928
+Pretrain epoch 262, recon_loss:0.513895, zinb_loss:0.923440, adversial_loss:1.250620
+Pretrain epoch 263, recon_loss:0.513835, zinb_loss:0.923419, adversial_loss:1.250605
+Pretrain epoch 264, recon_loss:0.512982, zinb_loss:0.923185, adversial_loss:1.250534
+Pretrain epoch 265, recon_loss:0.512673, zinb_loss:0.923089, adversial_loss:1.250627
+Pretrain epoch 266, recon_loss:0.512133, zinb_loss:0.923116, adversial_loss:1.250002
+Pretrain epoch 267, recon_loss:0.511962, zinb_loss:0.923176, adversial_loss:1.250749
+Pretrain epoch 268, recon_loss:0.512107, zinb_loss:0.924047, adversial_loss:1.249946
+Pretrain epoch 269, recon_loss:0.514833, zinb_loss:0.925737, adversial_loss:1.250677
+Pretrain epoch 270, recon_loss:0.517847, zinb_loss:0.926574, adversial_loss:1.249720
+Pretrain epoch 271, recon_loss:0.517943, zinb_loss:0.924881, adversial_loss:1.250278
+Pretrain epoch 272, recon_loss:0.514191, zinb_loss:0.922930, adversial_loss:1.250168
+Pretrain epoch 273, recon_loss:0.521242, zinb_loss:0.925202, adversial_loss:1.249156
+Pretrain epoch 274, recon_loss:0.517442, zinb_loss:0.925336, adversial_loss:1.250511
+Pretrain epoch 275, recon_loss:0.518384, zinb_loss:0.925294, adversial_loss:1.249870
+Pretrain epoch 276, recon_loss:0.521161, zinb_loss:0.927005, adversial_loss:1.249135
+Pretrain epoch 277, recon_loss:0.514256, zinb_loss:0.923433, adversial_loss:1.249893
+Pretrain epoch 278, recon_loss:0.515535, zinb_loss:0.923530, adversial_loss:1.249849
+Pretrain epoch 279, recon_loss:0.512503, zinb_loss:0.923560, adversial_loss:1.249354
+Pretrain epoch 280, recon_loss:0.515305, zinb_loss:0.922990, adversial_loss:1.249665
+Pretrain epoch 281, recon_loss:0.509805, zinb_loss:0.922676, adversial_loss:1.249541
+Pretrain epoch 282, recon_loss:0.510216, zinb_loss:0.922475, adversial_loss:1.249405
+Pretrain epoch 283, recon_loss:0.507578, zinb_loss:0.922051, adversial_loss:1.249196
+Pretrain epoch 284, recon_loss:0.506245, zinb_loss:0.922554, adversial_loss:1.249519
+Pretrain epoch 285, recon_loss:0.504669, zinb_loss:0.922000, adversial_loss:1.249220
+Pretrain epoch 286, recon_loss:0.502729, zinb_loss:0.921837, adversial_loss:1.248951
+Pretrain epoch 287, recon_loss:0.501774, zinb_loss:0.921657, adversial_loss:1.249160
+Pretrain epoch 288, recon_loss:0.501260, zinb_loss:0.921655, adversial_loss:1.248994
+Pretrain epoch 289, recon_loss:0.499360, zinb_loss:0.921550, adversial_loss:1.249006
+Pretrain epoch 290, recon_loss:0.498534, zinb_loss:0.921686, adversial_loss:1.248650
+Pretrain epoch 291, recon_loss:0.497990, zinb_loss:0.921559, adversial_loss:1.248952
+Pretrain epoch 292, recon_loss:0.498962, zinb_loss:0.921546, adversial_loss:1.248601
+Pretrain epoch 293, recon_loss:0.500745, zinb_loss:0.921814, adversial_loss:1.248916
+Pretrain epoch 294, recon_loss:0.501947, zinb_loss:0.922106, adversial_loss:1.248188
+Pretrain epoch 295, recon_loss:0.498946, zinb_loss:0.921893, adversial_loss:1.248592
+Pretrain epoch 296, recon_loss:0.496131, zinb_loss:0.921547, adversial_loss:1.248443
+Pretrain epoch 297, recon_loss:0.496319, zinb_loss:0.921698, adversial_loss:1.248167
+Pretrain epoch 298, recon_loss:0.496336, zinb_loss:0.921654, adversial_loss:1.248361
+Pretrain epoch 299, recon_loss:0.496867, zinb_loss:0.921532, adversial_loss:1.248230
+Pretrain epoch 300, recon_loss:0.495937, zinb_loss:0.921501, adversial_loss:1.248012
+Pretrain epoch 301, recon_loss:0.498234, zinb_loss:0.922171, adversial_loss:1.248614
+Pretrain epoch 302, recon_loss:0.503863, zinb_loss:0.923424, adversial_loss:1.247572
+Pretrain epoch 303, recon_loss:0.495321, zinb_loss:0.922800, adversial_loss:1.248073
+Pretrain epoch 304, recon_loss:0.498044, zinb_loss:0.921611, adversial_loss:1.248363
+Pretrain epoch 305, recon_loss:0.494356, zinb_loss:0.921310, adversial_loss:1.247588
+Pretrain epoch 306, recon_loss:0.490891, zinb_loss:0.920596, adversial_loss:1.247740
+Pretrain epoch 307, recon_loss:0.491591, zinb_loss:0.921038, adversial_loss:1.247965
+Pretrain epoch 308, recon_loss:0.490003, zinb_loss:0.921139, adversial_loss:1.247654
+Pretrain epoch 309, recon_loss:0.489223, zinb_loss:0.920694, adversial_loss:1.247563
+Pretrain epoch 310, recon_loss:0.487935, zinb_loss:0.920680, adversial_loss:1.247849
+Pretrain epoch 311, recon_loss:0.486295, zinb_loss:0.920362, adversial_loss:1.247628
+Pretrain epoch 312, recon_loss:0.484374, zinb_loss:0.920141, adversial_loss:1.247453
+Pretrain epoch 313, recon_loss:0.483633, zinb_loss:0.920165, adversial_loss:1.247648
+Pretrain epoch 314, recon_loss:0.482767, zinb_loss:0.920006, adversial_loss:1.247262
+Pretrain epoch 315, recon_loss:0.482459, zinb_loss:0.920056, adversial_loss:1.247328
+Pretrain epoch 316, recon_loss:0.484225, zinb_loss:0.920175, adversial_loss:1.247292
+Pretrain epoch 317, recon_loss:0.487041, zinb_loss:0.920193, adversial_loss:1.247450
+Pretrain epoch 318, recon_loss:0.488344, zinb_loss:0.920604, adversial_loss:1.247184
+Pretrain epoch 319, recon_loss:0.482620, zinb_loss:0.920529, adversial_loss:1.246988
+Pretrain epoch 320, recon_loss:0.479926, zinb_loss:0.920262, adversial_loss:1.247065
+Pretrain epoch 321, recon_loss:0.483461, zinb_loss:0.920427, adversial_loss:1.246775
+Pretrain epoch 322, recon_loss:0.482188, zinb_loss:0.920349, adversial_loss:1.247039
+Pretrain epoch 323, recon_loss:0.480952, zinb_loss:0.920759, adversial_loss:1.246691
+Pretrain epoch 324, recon_loss:0.479341, zinb_loss:0.921360, adversial_loss:1.247012
+Pretrain epoch 325, recon_loss:0.484663, zinb_loss:0.921780, adversial_loss:1.246749
+Pretrain epoch 326, recon_loss:0.482796, zinb_loss:0.921111, adversial_loss:1.246708
+Pretrain epoch 327, recon_loss:0.479651, zinb_loss:0.919901, adversial_loss:1.246666
+Pretrain epoch 328, recon_loss:0.475342, zinb_loss:0.919579, adversial_loss:1.246480
+Pretrain epoch 329, recon_loss:0.477140, zinb_loss:0.920015, adversial_loss:1.246821
+Pretrain epoch 330, recon_loss:0.477093, zinb_loss:0.920330, adversial_loss:1.246401
+Pretrain epoch 331, recon_loss:0.476431, zinb_loss:0.920010, adversial_loss:1.246523
+Pretrain epoch 332, recon_loss:0.473098, zinb_loss:0.919427, adversial_loss:1.246268
+Pretrain epoch 333, recon_loss:0.471720, zinb_loss:0.919005, adversial_loss:1.246389
+Pretrain epoch 334, recon_loss:0.470440, zinb_loss:0.919068, adversial_loss:1.246033
+Pretrain epoch 335, recon_loss:0.468932, zinb_loss:0.918952, adversial_loss:1.246140
+Pretrain epoch 336, recon_loss:0.468013, zinb_loss:0.918944, adversial_loss:1.246304
+Pretrain epoch 337, recon_loss:0.471349, zinb_loss:0.919161, adversial_loss:1.245710
+Pretrain epoch 338, recon_loss:0.470129, zinb_loss:0.919169, adversial_loss:1.246209
+Pretrain epoch 339, recon_loss:0.473457, zinb_loss:0.919853, adversial_loss:1.245862
+Pretrain epoch 340, recon_loss:0.475349, zinb_loss:0.920651, adversial_loss:1.246094
+Pretrain epoch 341, recon_loss:0.474336, zinb_loss:0.920240, adversial_loss:1.245935
+Pretrain epoch 342, recon_loss:0.468043, zinb_loss:0.918994, adversial_loss:1.245606
+Pretrain epoch 343, recon_loss:0.468887, zinb_loss:0.918801, adversial_loss:1.245953
+Pretrain epoch 344, recon_loss:0.467698, zinb_loss:0.918980, adversial_loss:1.245598
+Pretrain epoch 345, recon_loss:0.464630, zinb_loss:0.918694, adversial_loss:1.245645
+Pretrain epoch 346, recon_loss:0.466442, zinb_loss:0.918619, adversial_loss:1.245765
+Pretrain epoch 347, recon_loss:0.462846, zinb_loss:0.918705, adversial_loss:1.245506
+Pretrain epoch 348, recon_loss:0.463364, zinb_loss:0.918919, adversial_loss:1.245496
+Pretrain epoch 349, recon_loss:0.466677, zinb_loss:0.919709, adversial_loss:1.245865
+Pretrain epoch 350, recon_loss:0.463831, zinb_loss:0.919662, adversial_loss:1.245411
+Pretrain epoch 351, recon_loss:0.468532, zinb_loss:0.919222, adversial_loss:1.245589
+Pretrain epoch 352, recon_loss:0.463319, zinb_loss:0.919005, adversial_loss:1.245463
+Pretrain epoch 353, recon_loss:0.464628, zinb_loss:0.918722, adversial_loss:1.245402
+Pretrain epoch 354, recon_loss:0.466382, zinb_loss:0.918665, adversial_loss:1.245361
+Pretrain epoch 355, recon_loss:0.463741, zinb_loss:0.918424, adversial_loss:1.245294
+Pretrain epoch 356, recon_loss:0.456510, zinb_loss:0.917770, adversial_loss:1.245330
+Pretrain epoch 357, recon_loss:0.454428, zinb_loss:0.917779, adversial_loss:1.244992
+Pretrain epoch 358, recon_loss:0.454976, zinb_loss:0.917737, adversial_loss:1.245449
+Pretrain epoch 359, recon_loss:0.454311, zinb_loss:0.917862, adversial_loss:1.244968
+Pretrain epoch 360, recon_loss:0.452632, zinb_loss:0.917909, adversial_loss:1.245039
+Pretrain epoch 361, recon_loss:0.453067, zinb_loss:0.917687, adversial_loss:1.244955
+Pretrain epoch 362, recon_loss:0.456525, zinb_loss:0.917979, adversial_loss:1.245360
+Pretrain epoch 363, recon_loss:0.462370, zinb_loss:0.918319, adversial_loss:1.244389
+Pretrain epoch 364, recon_loss:0.454625, zinb_loss:0.917606, adversial_loss:1.245090
+Pretrain epoch 365, recon_loss:0.446788, zinb_loss:0.917397, adversial_loss:1.244783
+Pretrain epoch 366, recon_loss:0.449447, zinb_loss:0.917623, adversial_loss:1.244616
+Pretrain epoch 367, recon_loss:0.449955, zinb_loss:0.917494, adversial_loss:1.244825
+Pretrain epoch 368, recon_loss:0.448117, zinb_loss:0.917450, adversial_loss:1.244515
+Pretrain epoch 369, recon_loss:0.449342, zinb_loss:0.917591, adversial_loss:1.244497
+Pretrain epoch 370, recon_loss:0.448283, zinb_loss:0.917546, adversial_loss:1.244743
+Pretrain epoch 371, recon_loss:0.445914, zinb_loss:0.917302, adversial_loss:1.244316
+Pretrain epoch 372, recon_loss:0.443342, zinb_loss:0.917304, adversial_loss:1.244421
+Pretrain epoch 373, recon_loss:0.443727, zinb_loss:0.917965, adversial_loss:1.244472
+Pretrain epoch 374, recon_loss:0.450613, zinb_loss:0.920401, adversial_loss:1.244195
+Pretrain epoch 375, recon_loss:0.458434, zinb_loss:0.923473, adversial_loss:1.244600
+Pretrain epoch 376, recon_loss:0.466628, zinb_loss:0.923974, adversial_loss:1.244055
+Pretrain epoch 377, recon_loss:0.448002, zinb_loss:0.918008, adversial_loss:1.244360
+Pretrain epoch 378, recon_loss:0.453877, zinb_loss:0.919228, adversial_loss:1.244228
+Pretrain epoch 379, recon_loss:0.454729, zinb_loss:0.920082, adversial_loss:1.244211
+Pretrain epoch 380, recon_loss:0.445237, zinb_loss:0.917129, adversial_loss:1.244172
+Pretrain epoch 381, recon_loss:0.450492, zinb_loss:0.917859, adversial_loss:1.243852
+Pretrain epoch 382, recon_loss:0.442563, zinb_loss:0.917322, adversial_loss:1.244273
+Pretrain epoch 383, recon_loss:0.441668, zinb_loss:0.916980, adversial_loss:1.244167
+Pretrain epoch 384, recon_loss:0.439400, zinb_loss:0.916999, adversial_loss:1.243751
+Pretrain epoch 385, recon_loss:0.436498, zinb_loss:0.916621, adversial_loss:1.243968
+Pretrain epoch 386, recon_loss:0.434738, zinb_loss:0.916643, adversial_loss:1.243971
+Pretrain epoch 387, recon_loss:0.433600, zinb_loss:0.916510, adversial_loss:1.243769
+Pretrain epoch 388, recon_loss:0.432909, zinb_loss:0.916476, adversial_loss:1.243826
+Pretrain epoch 389, recon_loss:0.433671, zinb_loss:0.916366, adversial_loss:1.243977
+Pretrain epoch 390, recon_loss:0.440959, zinb_loss:0.916790, adversial_loss:1.243476
+Pretrain epoch 391, recon_loss:0.441706, zinb_loss:0.916533, adversial_loss:1.244172
+Pretrain epoch 392, recon_loss:0.437726, zinb_loss:0.916482, adversial_loss:1.243456
+Pretrain epoch 393, recon_loss:0.427984, zinb_loss:0.916146, adversial_loss:1.243696
+Pretrain epoch 394, recon_loss:0.428263, zinb_loss:0.916296, adversial_loss:1.243844
+Pretrain epoch 395, recon_loss:0.431406, zinb_loss:0.916571, adversial_loss:1.243382
+Pretrain epoch 396, recon_loss:0.424839, zinb_loss:0.916067, adversial_loss:1.243597
+Pretrain epoch 397, recon_loss:0.426324, zinb_loss:0.916186, adversial_loss:1.243752
+Pretrain epoch 398, recon_loss:0.432253, zinb_loss:0.916296, adversial_loss:1.243196
+Pretrain epoch 399, recon_loss:0.433320, zinb_loss:0.916364, adversial_loss:1.243449
+Pretrain epoch 400, recon_loss:0.431458, zinb_loss:0.916175, adversial_loss:1.243666
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[67]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span><span class="p">,</span> <span class="n">final_latent</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s1">&#39;10x1kpbmc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Clustering stage
+Initializing cluster centers with kmeans.
+Initializing k-means: AMI= 0.8205, NMI= 0.8218, ARI= 0.8344, ACC= 0.9201
+Training epoch 1, recon_loss:0.430522, zinb_loss:0.916023, cluster_loss:0.154342
+Clustering   1: AMI= 0.8205, NMI= 0.8218, ARI= 0.8344, ACC= 0.9201
+0.0
+Training epoch 2, recon_loss:0.846306, zinb_loss:1.077583, cluster_loss:0.171737
+Clustering   2: AMI= 0.8006, NMI= 0.8021, ARI= 0.8141, ACC= 0.9088
+0.014025245441795231
+Training epoch 3, recon_loss:0.778181, zinb_loss:1.139828, cluster_loss:0.164231
+Clustering   3: AMI= 0.8304, NMI= 0.8316, ARI= 0.8507, ACC= 0.9341
+0.03225806451612903
+Training epoch 4, recon_loss:0.784476, zinb_loss:1.364775, cluster_loss:0.169950
+Clustering   4: AMI= 0.8110, NMI= 0.8124, ARI= 0.8221, ACC= 0.9159
+0.03927068723702665
+Training epoch 5, recon_loss:0.830803, zinb_loss:1.707875, cluster_loss:0.176492
+Clustering   5: AMI= 0.8033, NMI= 0.8047, ARI= 0.7921, ACC= 0.8780
+0.06591865357643759
+Training epoch 6, recon_loss:0.802670, zinb_loss:1.205563, cluster_loss:0.177979
+Clustering   6: AMI= 0.8130, NMI= 0.8144, ARI= 0.8361, ACC= 0.9229
+0.08134642356241234
+Training epoch 7, recon_loss:0.773048, zinb_loss:1.173137, cluster_loss:0.170710
+Clustering   7: AMI= 0.8174, NMI= 0.8187, ARI= 0.8373, ACC= 0.9243
+0.005610098176718092
+Training epoch 8, recon_loss:0.715895, zinb_loss:1.001829, cluster_loss:0.163364
+Clustering   8: AMI= 0.8115, NMI= 0.8128, ARI= 0.8306, ACC= 0.9186
+0.008415147265077139
+Training epoch 9, recon_loss:0.707180, zinb_loss:0.976355, cluster_loss:0.150441
+Clustering   9: AMI= 0.8095, NMI= 0.8109, ARI= 0.8083, ACC= 0.9018
+0.037868162692847124
+Training epoch 10, recon_loss:0.661050, zinb_loss:0.958861, cluster_loss:0.151975
+Clustering   10: AMI= 0.8213, NMI= 0.8226, ARI= 0.8308, ACC= 0.9186
+0.019635343618513323
+Training epoch 11, recon_loss:0.652488, zinb_loss:0.952982, cluster_loss:0.149777
+Clustering   11: AMI= 0.8103, NMI= 0.8116, ARI= 0.8189, ACC= 0.9102
+0.011220196353436185
+Training epoch 12, recon_loss:0.642588, zinb_loss:0.953146, cluster_loss:0.151356
+Clustering   12: AMI= 0.8215, NMI= 0.8228, ARI= 0.8335, ACC= 0.9201
+0.009817671809256662
+Training epoch 13, recon_loss:0.638285, zinb_loss:0.949473, cluster_loss:0.149443
+Clustering   13: AMI= 0.8164, NMI= 0.8177, ARI= 0.8254, ACC= 0.9159
+0.0070126227208976155
+Training epoch 14, recon_loss:0.641145, zinb_loss:0.953004, cluster_loss:0.147145
+Clustering   14: AMI= 0.8178, NMI= 0.8192, ARI= 0.8276, ACC= 0.9159
+0.002805049088359046
+Training epoch 15, recon_loss:0.637767, zinb_loss:0.952127, cluster_loss:0.148271
+Clustering   15: AMI= 0.8203, NMI= 0.8216, ARI= 0.8315, ACC= 0.9186
+0.002805049088359046
+Training epoch 16, recon_loss:0.625828, zinb_loss:0.957454, cluster_loss:0.145889
+Clustering   16: AMI= 0.8140, NMI= 0.8154, ARI= 0.8209, ACC= 0.9116
+0.009817671809256662
+Training epoch 17, recon_loss:0.611839, zinb_loss:0.962478, cluster_loss:0.148376
+Clustering   17: AMI= 0.8260, NMI= 0.8273, ARI= 0.8380, ACC= 0.9229
+0.015427769985974754
+Training epoch 18, recon_loss:0.621567, zinb_loss:0.977118, cluster_loss:0.145853
+Clustering   18: AMI= 0.8140, NMI= 0.8154, ARI= 0.8209, ACC= 0.9116
+0.015427769985974754
+Training epoch 19, recon_loss:0.607203, zinb_loss:0.988093, cluster_loss:0.149063
+Clustering   19: AMI= 0.8275, NMI= 0.8288, ARI= 0.8401, ACC= 0.9257
+0.021037868162692847
+Training epoch 20, recon_loss:0.615731, zinb_loss:0.995491, cluster_loss:0.145251
+Clustering   20: AMI= 0.8140, NMI= 0.8154, ARI= 0.8209, ACC= 0.9116
+0.021037868162692847
+Training epoch 21, recon_loss:0.609800, zinb_loss:0.997153, cluster_loss:0.147204
+Clustering   21: AMI= 0.8261, NMI= 0.8274, ARI= 0.8380, ACC= 0.9243
+0.019635343618513323
+Training epoch 22, recon_loss:0.621488, zinb_loss:0.992326, cluster_loss:0.146616
+Clustering   22: AMI= 0.8182, NMI= 0.8195, ARI= 0.8240, ACC= 0.9130
+0.0182328190743338
+Training epoch 23, recon_loss:0.611237, zinb_loss:0.988998, cluster_loss:0.145771
+Clustering   23: AMI= 0.8203, NMI= 0.8216, ARI= 0.8315, ACC= 0.9186
+0.008415147265077139
+Training epoch 24, recon_loss:0.600035, zinb_loss:0.983440, cluster_loss:0.144918
+Clustering   24: AMI= 0.8253, NMI= 0.8265, ARI= 0.8355, ACC= 0.9215
+0.002805049088359046
+Training epoch 25, recon_loss:0.596902, zinb_loss:0.978649, cluster_loss:0.143721
+Clustering   25: AMI= 0.8182, NMI= 0.8195, ARI= 0.8240, ACC= 0.9130
+0.011220196353436185
+Training epoch 26, recon_loss:0.606475, zinb_loss:0.980079, cluster_loss:0.145489
+Clustering   26: AMI= 0.8304, NMI= 0.8316, ARI= 0.8440, ACC= 0.9285
+0.025245441795231416
+Training epoch 27, recon_loss:0.620056, zinb_loss:0.975876, cluster_loss:0.146040
+Clustering   27: AMI= 0.8160, NMI= 0.8173, ARI= 0.8204, ACC= 0.9102
+0.028050490883590462
+Training epoch 28, recon_loss:0.627696, zinb_loss:0.977644, cluster_loss:0.149002
+Clustering   28: AMI= 0.8264, NMI= 0.8277, ARI= 0.8437, ACC= 0.9285
+0.0364656381486676
+Training epoch 29, recon_loss:0.607567, zinb_loss:0.963646, cluster_loss:0.145189
+Clustering   29: AMI= 0.8171, NMI= 0.8184, ARI= 0.8222, ACC= 0.9116
+0.03506311360448808
+Training epoch 30, recon_loss:0.596643, zinb_loss:0.960702, cluster_loss:0.144895
+Clustering   30: AMI= 0.8280, NMI= 0.8292, ARI= 0.8395, ACC= 0.9257
+0.019635343618513323
+Training epoch 31, recon_loss:0.586386, zinb_loss:0.957384, cluster_loss:0.143485
+Clustering   31: AMI= 0.8190, NMI= 0.8204, ARI= 0.8296, ACC= 0.9173
+0.011220196353436185
+Training epoch 32, recon_loss:0.587456, zinb_loss:0.956871, cluster_loss:0.142214
+Clustering   32: AMI= 0.8189, NMI= 0.8202, ARI= 0.8294, ACC= 0.9186
+0.004207573632538569
+Training epoch 33, recon_loss:0.586300, zinb_loss:0.957902, cluster_loss:0.142721
+Clustering   33: AMI= 0.8203, NMI= 0.8216, ARI= 0.8315, ACC= 0.9186
+0.002805049088359046
+Training epoch 34, recon_loss:0.597041, zinb_loss:0.956997, cluster_loss:0.141408
+Clustering   34: AMI= 0.8152, NMI= 0.8166, ARI= 0.8235, ACC= 0.9144
+0.004207573632538569
+Training epoch 35, recon_loss:0.582191, zinb_loss:0.959904, cluster_loss:0.142487
+Clustering   35: AMI= 0.8228, NMI= 0.8241, ARI= 0.8355, ACC= 0.9215
+0.0070126227208976155
+Training epoch 36, recon_loss:0.579865, zinb_loss:0.960015, cluster_loss:0.141827
+Clustering   36: AMI= 0.8166, NMI= 0.8180, ARI= 0.8217, ACC= 0.9130
+0.011220196353436185
+Training epoch 37, recon_loss:0.579633, zinb_loss:0.963965, cluster_loss:0.142911
+Clustering   37: AMI= 0.8275, NMI= 0.8288, ARI= 0.8401, ACC= 0.9257
+0.016830294530154277
+Training epoch 38, recon_loss:0.591656, zinb_loss:0.964938, cluster_loss:0.143914
+Clustering   38: AMI= 0.8103, NMI= 0.8117, ARI= 0.8149, ACC= 0.9088
+0.021037868162692847
+Training epoch 39, recon_loss:0.598165, zinb_loss:0.971153, cluster_loss:0.144402
+Clustering   39: AMI= 0.8260, NMI= 0.8273, ARI= 0.8394, ACC= 0.9257
+0.02244039270687237
+Training epoch 40, recon_loss:0.586254, zinb_loss:0.966595, cluster_loss:0.142439
+Clustering   40: AMI= 0.8155, NMI= 0.8169, ARI= 0.8199, ACC= 0.9116
+0.019635343618513323
+Training epoch 41, recon_loss:0.576397, zinb_loss:0.964681, cluster_loss:0.141448
+Clustering   41: AMI= 0.8202, NMI= 0.8215, ARI= 0.8314, ACC= 0.9201
+0.011220196353436185
+Training epoch 42, recon_loss:0.580564, zinb_loss:0.965172, cluster_loss:0.142515
+Clustering   42: AMI= 0.8164, NMI= 0.8177, ARI= 0.8254, ACC= 0.9159
+0.004207573632538569
+Training epoch 43, recon_loss:0.581782, zinb_loss:0.966008, cluster_loss:0.141712
+Clustering   43: AMI= 0.8178, NMI= 0.8192, ARI= 0.8276, ACC= 0.9159
+0.002805049088359046
+Training epoch 44, recon_loss:0.578958, zinb_loss:0.961043, cluster_loss:0.142084
+Clustering   44: AMI= 0.8202, NMI= 0.8215, ARI= 0.8314, ACC= 0.9201
+0.0070126227208976155
+Training epoch 45, recon_loss:0.578888, zinb_loss:0.958669, cluster_loss:0.141906
+Clustering   45: AMI= 0.8182, NMI= 0.8195, ARI= 0.8240, ACC= 0.9130
+0.012622720897615708
+Training epoch 46, recon_loss:0.572623, zinb_loss:0.953206, cluster_loss:0.141412
+Clustering   46: AMI= 0.8215, NMI= 0.8228, ARI= 0.8334, ACC= 0.9215
+0.014025245441795231
+Training epoch 47, recon_loss:0.573183, zinb_loss:0.951851, cluster_loss:0.141826
+Clustering   47: AMI= 0.8171, NMI= 0.8184, ARI= 0.8222, ACC= 0.9116
+0.015427769985974754
+Training epoch 48, recon_loss:0.582879, zinb_loss:0.955231, cluster_loss:0.141006
+Clustering   48: AMI= 0.8252, NMI= 0.8265, ARI= 0.8354, ACC= 0.9229
+0.016830294530154277
+Training epoch 49, recon_loss:0.577148, zinb_loss:0.950773, cluster_loss:0.141801
+Clustering   49: AMI= 0.8182, NMI= 0.8195, ARI= 0.8240, ACC= 0.9130
+0.015427769985974754
+Training epoch 50, recon_loss:0.582462, zinb_loss:0.950802, cluster_loss:0.140044
+Clustering   50: AMI= 0.8189, NMI= 0.8202, ARI= 0.8294, ACC= 0.9186
+0.011220196353436185
+Training epoch 51, recon_loss:0.578021, zinb_loss:0.947385, cluster_loss:0.141623
+Clustering   51: AMI= 0.8176, NMI= 0.8190, ARI= 0.8274, ACC= 0.9173
+0.001402524544179523
+Training epoch 52, recon_loss:0.593130, zinb_loss:0.945707, cluster_loss:0.141130
+Clustering   52: AMI= 0.8155, NMI= 0.8169, ARI= 0.8199, ACC= 0.9116
+0.008415147265077139
+Training epoch 53, recon_loss:0.584805, zinb_loss:0.945096, cluster_loss:0.142527
+Clustering   53: AMI= 0.8202, NMI= 0.8215, ARI= 0.8314, ACC= 0.9201
+0.011220196353436185
+Training epoch 54, recon_loss:0.585467, zinb_loss:0.943358, cluster_loss:0.140558
+Clustering   54: AMI= 0.8144, NMI= 0.8158, ARI= 0.8180, ACC= 0.9102
+0.012622720897615708
+Training epoch 55, recon_loss:0.568052, zinb_loss:0.941190, cluster_loss:0.141217
+Clustering   55: AMI= 0.8202, NMI= 0.8215, ARI= 0.8314, ACC= 0.9201
+0.012622720897615708
+Training epoch 56, recon_loss:0.577989, zinb_loss:0.941180, cluster_loss:0.139027
+Clustering   56: AMI= 0.8117, NMI= 0.8131, ARI= 0.8154, ACC= 0.9088
+0.014025245441795231
+Training epoch 57, recon_loss:0.572676, zinb_loss:0.940440, cluster_loss:0.141063
+Clustering   57: AMI= 0.8242, NMI= 0.8255, ARI= 0.8375, ACC= 0.9243
+0.0182328190743338
+Training epoch 58, recon_loss:0.580458, zinb_loss:0.941732, cluster_loss:0.139396
+Clustering   58: AMI= 0.8117, NMI= 0.8131, ARI= 0.8154, ACC= 0.9088
+0.0182328190743338
+Training epoch 59, recon_loss:0.564884, zinb_loss:0.940472, cluster_loss:0.141210
+Clustering   59: AMI= 0.8215, NMI= 0.8228, ARI= 0.8334, ACC= 0.9215
+0.015427769985974754
+Training epoch 60, recon_loss:0.566060, zinb_loss:0.942304, cluster_loss:0.139360
+Clustering   60: AMI= 0.8144, NMI= 0.8158, ARI= 0.8180, ACC= 0.9102
+0.014025245441795231
+Training epoch 61, recon_loss:0.561706, zinb_loss:0.942914, cluster_loss:0.141014
+Clustering   61: AMI= 0.8202, NMI= 0.8215, ARI= 0.8314, ACC= 0.9201
+0.012622720897615708
+Training epoch 62, recon_loss:0.577613, zinb_loss:0.950187, cluster_loss:0.139490
+Clustering   62: AMI= 0.8155, NMI= 0.8169, ARI= 0.8199, ACC= 0.9116
+0.011220196353436185
+Training epoch 63, recon_loss:0.569885, zinb_loss:0.951495, cluster_loss:0.140008
+Clustering   63: AMI= 0.8176, NMI= 0.8190, ARI= 0.8274, ACC= 0.9173
+0.008415147265077139
+Training epoch 64, recon_loss:0.569891, zinb_loss:0.955939, cluster_loss:0.139665
+Clustering   64: AMI= 0.8176, NMI= 0.8190, ARI= 0.8274, ACC= 0.9173
+0.0
+delta_label  0.0 &lt; tol  0.001
+Reach tolerance threshold. Stopping training.
+Final Result : AMI= 0.8176, NMI= 0.8190, ARI= 0.8274, ACC= 0.9173
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, zhouzeming.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

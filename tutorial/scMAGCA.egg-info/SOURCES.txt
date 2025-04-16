@@ -1,0 +1,8 @@
+LICENSE
+README.md
+setup.py
+example/__init__.py
+scMAGCA.egg-info/PKG-INFO
+scMAGCA.egg-info/SOURCES.txt
+scMAGCA.egg-info/dependency_links.txt
+scMAGCA.egg-info/top_level.txt

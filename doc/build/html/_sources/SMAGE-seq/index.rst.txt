@@ -1,0 +1,11 @@
+SMAGE-seq Tutorial
+==================
+
+This section provides the tutorial on SMAGE-seq.
+
+You can view the notebook here:
+
+.. raw:: html
+
+    <a href="../Tutorial_SMAGE-seq.ipynb" target="_blank">Open SMAGE-seq Notebook</a>
+
