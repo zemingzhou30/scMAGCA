@@ -172,7 +172,6 @@ rich==13.7.1
 rpds-py==0.20.1
 rsa==4.9
 scanpy==1.9.6
-scikit-learn==0.22.1
 scikit-misc==0.2.0
 scvi-tools==0.20.3
 seaborn==0.12.2
