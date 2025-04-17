@@ -1,6 +1,6 @@
 # Example real datasets
 
-Example datasets used in the article can be downloaded from [https://pan.baidu.com/s/12eSdzQLEDml_0nXflYgF1w?pwd=exsk](https://doi.org/10.6084/m9.figshare.28805930.v2) 
+Example datasets used in the article can be downloaded from https://doi.org/10.6084/m9.figshare.28805930.v2
 
 Required objects in h5/h5ad file for running scMDC
 1) X1: ADT/ATAC count matrix
