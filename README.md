@@ -12,7 +12,7 @@ We develop a multimodal graph convolutional model based on adversarial learning 
 - [Output](#Output)
 - [Arguments](#Arguments)
 
-## <a name="diagram">Network diagram</a>
+## <a name="diagram">Framework diagram</a>
 
 ![scMAGCA/network.png at main · zemingzhou30/scMAGCA](https://github.com/zemingzhou30/scMAGCA/blob/main/framework.png?raw=true)
 
