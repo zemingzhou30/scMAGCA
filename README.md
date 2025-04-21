@@ -1,15 +1,20 @@
 # scMAGCA
 
-Single Cell Multi-omics adversarial graph convolutional autoencoder
+Single Cell Multi-omics adversarial graph convolutional autoencoder (**scMAGCA v1.0**)
 
 We develop a multimodal graph convolutional model based on adversarial learning (scMAGCA) to jointly analyze scMulti-omics efficiently. scMAGCA effectively integrates scMulti-omics data and learns the joint representation.  Extensive experiments demonstrate that scMAGCA exhibits superior clustering performance, outperforming existing multi-modal and single-modal clustering techniques across various single-cell multimodal datasets including CITE-seq datasets and SMAGE-seq datasets.
 
 ## Table of contents
 
+- [Framework diagram](#diagram)
 - [Dependencies](#Dependencies)
 - [Usage](#Usage)
 - [Output](#Output)
 - [Arguments](#Arguments)
+
+## <a name="diagram">Network diagram</a>
+
+![scMAGCA/network.png at main · zemingzhou30/scMAGCA](https://github.com/zemingzhou30/scMAGCA/blob/main/framework.png?raw=true)
 
 ## <a name="Dependencies">Dependencies</a>
 
@@ -56,8 +61,9 @@ Other objects in the h5ad or h5 files:
 
 
 1. Prepare the input data in h5ad or h5 format (All used datassets are in "datasets" floder and the generated cell-cell graph structure will be saved in the "raw" folder corresponding to the dataset). 
-
 2. Run scMAGCA according to the running script in "scripts" folder (run_scMAGCA.sh for ADT/ATAC+mRNA data and run_scMAGCA_batch.sh for multi-batch data clustering). For example, you can execute scMAGCA on multi-batch dataset "GSE164378"  by shell command: "bash run_scMAGCA_batch.sh".
+
+You can also visit the online document at [Welcome to scMAGCA’s documentation! — scMAGCA 1.0 documentation](https://scmagca.readthedocs.io/en/latest/)
 
 ## <a name="Dependencies">Output</a>
 
