@@ -6,18 +6,27 @@
 Welcome to scMAGCA's documentation!
 ===================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: SMAGE-seq:
-   
-   Tutorial_SMAGE-seq
 
 .. toctree::
    :maxdepth: 2
-   :caption: CITE-seq:
+   :caption: RNA+ADT:
    
-   Tutorial_CITE-seq
+   Tutorial_RNA_ADT
+   Tutorial_Barch
 
+.. toctree::
+   :maxdepth: 2
+   :caption: RNA+ATAC:
+   
+   Tutorial_RNA_ATAC
+   Tutorial_RNA_ATAC_nolabel
 
+.. toctree::
+   :maxdepth: 2
+   :caption: RNA+ADT+ATAC:
+
+   Tutorial_3omics
+
+   
 ===================================
 
