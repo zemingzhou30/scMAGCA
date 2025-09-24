@@ -9,21 +9,26 @@ Welcome to scMAGCA's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: RNA+ADT:
+   :caption: Tutorial_1:RNA+ADT:
    
    Tutorial_RNA_ADT
-   Tutorial_Barch
 
 .. toctree::
    :maxdepth: 2
-   :caption: RNA+ATAC:
+   :caption: Tutorial_2:RNA+ATAC:
    
    Tutorial_RNA_ATAC
    Tutorial_RNA_ATAC_nolabel
 
 .. toctree::
    :maxdepth: 2
-   :caption: RNA+ADT+ATAC:
+   :caption: Tutorial_3:Batch correction
+   
+   Tutorial_Batch
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorial_4:RNA+ADT+ATAC(3omics):
 
    Tutorial_3omics
 
