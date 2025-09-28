@@ -22,7 +22,7 @@ Welcome to scMAGCA's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: 3.Multi-batch datasets
+   :caption: 3.Multi-batch dataset
    
    Tutorial_Batch
 
