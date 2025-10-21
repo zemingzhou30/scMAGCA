@@ -61,7 +61,7 @@ Other objects in the h5ad or h5 files:
 
 
 1. Prepare the input data in h5ad or h5 format (All used datassets are in "datasets" floder and the generated cell-cell graph structure will be saved in the "raw" folder corresponding to the dataset). 
-2. Run scMAGCA according to the running script in "scripts" folder (run_scMAGCA.sh for ADT/ATAC+mRNA data and run_scMAGCA_batch.sh for multi-batch data clustering). For example, you can execute scMAGCA on multi-batch dataset "GSE164378"  by shell command: "bash run_scMAGCA_batch.sh".
+2. Run scMAGCA according to the running script in "scripts" folder (run_scMAGCA.sh for RNA+ADT/ATAC data and run_scMAGCA_batch.sh for multi-batch data clustering). For example, you can execute scMAGCA on multi-batch dataset "GSE164378"  by shell command: "bash run_scMAGCA_batch.sh".
 
 You can also visit the online document at [Welcome to scMAGCA’s documentation! — scMAGCA 1.0 documentation](https://scmagca.readthedocs.io/en/latest/)
 
@@ -89,7 +89,7 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 
 --prediction_file: if save prediction file. Default: Yes.
 
---ad_out: the output dim of discriminator. Default: 16 for CITE-Seq; 32 for SMAGE-Seq.
+--ad_out: the output dim of discriminator. Default: 16 for RNA+ADT datasets; 32 for RNA+ATAC datasets.
 
 --tol: the criterion to stop the model, which is a percentage of changed labels. Default: 0.001.
 
@@ -106,4 +106,5 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 --device: training device. Default: cuda.
 
  *We denote  antibody-derived tags (ADTs) + Gene Expression as CITE-Seq and 10X Single-Cell Multiome ATAC + Gene Expression technology as SMAGE-seq for convenience. 
+
 
