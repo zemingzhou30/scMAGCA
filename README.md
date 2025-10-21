@@ -2,7 +2,7 @@
 
 Single Cell Multi-omics adversarial graph convolutional autoencoder (**scMAGCA v1.0**)
 
-We develop a multimodal graph convolutional model based on adversarial learning (scMAGCA) to jointly analyze scMulti-omics efficiently. scMAGCA effectively integrates scMulti-omics data and learns the joint representation.  Extensive experiments demonstrate that scMAGCA exhibits superior clustering performance, outperforming existing multi-modal and single-modal clustering techniques across various single-cell multimodal datasets including CITE-seq datasets and SMAGE-seq datasets.
+We develop a multimodal graph convolutional model based on adversarial learning (scMAGCA) to jointly analyze scMulti-omics efficiently. scMAGCA effectively integrates scMulti-omics data and learns the joint representation.  Extensive experiments demonstrate that scMAGCA exhibits superior clustering performance, outperforming existing multi-modal and single-modal clustering techniques across various single-cell multimodal datasets including RNA+ADT datasets and RNA+ATAC datasets.
 
 ## Table of contents
 
@@ -50,9 +50,9 @@ Required objects in h5ad or h5 file for running scMAGCA
 
 Other objects in the h5ad or h5 files:
 
-1. ADT: feature names in ADT count matirx (only in CITE-seq data)
+1. ADT: feature names in ADT count matirx (only in RNA+ADT data)
 
-2. GenesFromPeaks: feature names in the gene-to-cell matrix mapped from scATAC-seq (only in SMAGE-seq data)
+2. GenesFromPeaks: feature names in the gene-to-cell matrix mapped from scATAC-seq (only in RNA+ATAC data)
 
 3. Genes: feature names in mRNA count matrix
 
@@ -106,3 +106,4 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 --device: training device. Default: cuda.
 
  *We denote  antibody-derived tags (ADTs) + Gene Expression as CITE-Seq and 10X Single-Cell Multiome ATAC + Gene Expression technology as SMAGE-seq for convenience. 
+
