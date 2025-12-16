@@ -17,6 +17,23 @@ We develop a multimodal graph convolutional model based on adversarial learning 
 
 ![scMAGCA/network.png at main · zemingzhou30/scMAGCA](https://github.com/zemingzhou30/scMAGCA/blob/main/framework.png?raw=true)
 
+## <a name="Datasets">Datasets</a>
+
+Example datasets used in the article can be downloaded from https://doi.org/10.6084/m9.figshare.30164773.v1
+
+Required objects in h5/h5ad file for running scMAGCA
+1) X1: ADT/ATAC count matrix
+2) X2: mRNA count matrix
+3) Y: True labels (if exist)
+4) Batch: batch indicator (for multi-batch analysis)
+
+Other objects in the h5/h5ad files:
+1) ADT: feature names in ADT count matirx (only in RNA+ADT data)
+2) GenesFromPeaks: feature names in the gene-to-cell matrix mapped from scATAC-seq (only in RNA+ATAC data)
+3) Genes: feature names in mRNA count matrix
+4) Cell types: cell type of each cell (if exist)
+5) Barcodes: cell barcodes (if exits)
+
 ## <a name="Dependencies">Dependencies</a>
 
 Python 3.9.7
@@ -107,6 +124,7 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 --device: training device. Default: cuda.
 
  *We denote  antibody-derived tags (ADTs) + Gene Expression as CITE-Seq and 10X Single-Cell Multiome ATAC + Gene Expression technology as SMAGE-seq for convenience. 
+
 
 
 
