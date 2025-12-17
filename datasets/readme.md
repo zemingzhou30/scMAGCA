@@ -1,6 +1,6 @@
 # Example real datasets
 
-Example datasets used in the article can be downloaded from https://doi.org/10.6084/m9.figshare.30164773.v1
+Example datasets used in the article can be downloaded from [https://doi.org/10.6084/m9.figshare.30164773.v1](https://doi.org/10.6084/m9.figshare.30899447)
 
 Required objects in h5/h5ad file for running scMAGCA
 1) X1: ADT/ATAC count matrix
@@ -14,3 +14,4 @@ Other objects in the h5/h5ad files:
 3) Genes: feature names in mRNA count matrix
 4) Cell types: cell type of each cell (if exist)
 5) Barcodes: cell barcodes (if exits)
+
