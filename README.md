@@ -19,7 +19,7 @@ We develop a multimodal graph convolutional model based on adversarial learning 
 
 ## <a name="Datasets">Datasets</a>
 
-Example datasets used in the article can be downloaded from https://doi.org/10.6084/m9.figshare.30899447
+Example datasets used in the article can be downloaded from https://doi.org/10.6084/m9.figshare.30899447, and the downloaded datasets should be placed in the "datasets" folder.
 
 ## <a name="Dependencies">Dependencies</a>
 
@@ -111,6 +111,7 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 --device: training device. Default: cuda.
 
  *We denote  antibody-derived tags (ADTs) + Gene Expression as CITE-Seq and 10X Single-Cell Multiome ATAC + Gene Expression technology as SMAGE-seq for convenience. 
+
 
 
 
