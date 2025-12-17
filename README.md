@@ -12,6 +12,7 @@ We develop a multimodal graph convolutional model based on adversarial learning 
 - [Usage](#Usage)
 - [Output](#Output)
 - [Arguments](#Arguments)
+- [Reproducible pipeline](#pipeline)
 
 ## <a name="diagram">Framework diagram</a>
 
@@ -112,7 +113,9 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 
  *We denote  antibody-derived tags (ADTs) + Gene Expression as CITE-Seq and 10X Single-Cell Multiome ATAC + Gene Expression technology as SMAGE-seq for convenience. 
 
+## <a name="pipline">Reproducible pipeline</a>
 
+We have updated the relevant code for drawing the main figures in the "figures" folder. For instance, in Fig2.ipynb, we have demonstrated how to use funkyheatmap package to plot the main benchmarks. In Fig3.ipynb, the specific calculation of the specificity factor is clearly illustrated. Fig5.ipynb contains the whole biological analyses for the '10Xmalt' dataset mentioned in the article. All the pipelines we provided is operational and reproducible.
 
 
 
