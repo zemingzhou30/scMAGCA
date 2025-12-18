@@ -115,7 +115,8 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 
 ## <a name="pipline">Reproducible pipeline</a>
 
-We have updated the relevant code for drawing the main figures in the "figures" folder. For instance, in Fig2.ipynb, we have demonstrated how to use funkyheatmap package to plot the main benchmarks. In Fig3.ipynb, the specific calculation of the specificity factor is clearly illustrated. Fig5.ipynb contains the whole biological analyses for the '10Xmalt' dataset mentioned in the article. All the pipelines we provided is operational and reproducible.
+We have updated the relevant code for drawing the main figures in the "figures" folder. For instance, in Fig2.ipynb, we have demonstrated how to use funkyheatmap package to plot the main benchmarks. In Fig3.ipynb, the specific calculation of the specificity factor is clearly illustrated. Fig5.ipynb contains the main biological analyses for the '10Xmalt' dataset mentioned in the article. All the pipelines we provided is operational and reproducible.
+
 
 
 
