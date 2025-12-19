@@ -8,7 +8,7 @@ BiocManager::install("EnsDb.Mmusculus.v79")
 
 
 counts <- Read10X_h5("M_Kidney_Chromium_Nuc_Isolation_vs_SaltyEZ_vs_ComplexTissueDP_filtered_feature_bc_matrix.h5")
-fragpath <- "/home/zhangpeiru/Rworkspace/monocle/code/code_data/M_Kidney_Chromium_Nuc_Isolation_vs_SaltyEZ_vs_ComplexTissueDP_atac_fragments.tsv.gz"
+fragpath <- "M_Kidney_Chromium_Nuc_Isolation_vs_SaltyEZ_vs_ComplexTissueDP_atac_fragments.tsv.gz"
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
@@ -32,7 +32,7 @@ pbmc[["ATAC"]] <- CreateChromatinAssay(
   annotation = annotation
 )
 
-dat<-read.csv("/home/zhangpeiru/Rworkspace/scmgca/code/data/new_dat_meta.csv",row.names = 1)
+dat<-read.csv("new_dat_meta.csv",row.names = 1)
 
 pbmc<-subset(pbmc,cells=rownames(dat))
 
@@ -60,7 +60,7 @@ pbmc@meta.data$label<-dat$label
 
 pbmc <- RunUMAP(object = pbmc,, reduction = 'lsi', dims = 2:30, reduction.name = 'umap.atac')
 
-saveRDS(pbmc,"/home/zhangpeiru/Rworkspace/scmgca/code/data/raw_pbmc.rds")
+saveRDS(pbmc,"raw_pbmc.rds")
 
 pbmc<-SetIdent(pbmc,value = pbmc@meta.data$new_type)
 da_peaks_multiple <- FindAllMarkers(
@@ -77,15 +77,15 @@ head(da_peaks_multiple)
 library(dplyr)
 top10 <- da_peaks_multiple %>% group_by(cluster) %>% top_n(n = 100, wt = avg_log2FC)
 
-saveRDS(pbmc,"/home/zhangpeiru/Rworkspace/scmgca/code/data/raw_all.rds")
+saveRDS(pbmc,"raw_all.rds")
 
-write.csv(da_peaks_multiple,"/home/zhangpeiru/Rworkspace/scmgca/code/data/Diff_gene_table.csv")
+write.csv(da_peaks_multiple,"Diff_gene_table.csv")
 
 library(Seurat)
 library(scMayoMap)
 
 qc_data<-read.csv("mouse_kindy_10.csv") 
-dat<-readRDS("/home/zhangpeiru/Rworkspace/scmgca/code/data/mouse_RNA_new.rds")
+dat<-readRDS("mouse_RNA_new.rds")
 head(dat)
 table(dat@meta.data$label)
 dat<-SetIdent(dat,value=dat@meta.data$label)
@@ -114,7 +114,7 @@ cell_table$Freq <- cell_table$Freq / ave(cell_table$Freq, cell_table$Var2, FUN =
 dat@meta.data$new_type<-ifelse(dat@meta.data$label=="0","Endothelial cell 1",ifelse(dat@meta.data$label=="1","Loop of Henle cell",ifelse(dat@meta.data$label=="2","Proximal tubule cell 1",ifelse(dat@meta.data$label=="3","Endothelial cell 2",ifelse(dat@meta.data$label=="4","Distal convoluted tubule cell",ifelse(dat@meta.data$label=="5","Proximal tubule cell 2",ifelse(dat@meta.data$label=="6","Podocyte",ifelse(dat@meta.data$label=="7","Proximal tubule cell 3",ifelse(dat@meta.data$label=="8","Fibroblast","Intercalated cell"))))))))) #对cluster进行重新注释
 head(dat)
 
-saveRDS(dat,"/home/zhangpeiru/Rworkspace/scmgca/code/data/new_mouse_RNA_new.rds")
+saveRDS(dat,"new_mouse_RNA_new.rds")
 
 
 library(Seurat)
@@ -125,7 +125,7 @@ library(CellChat)
 library(ggalluvial)
 library(svglite)
 #options(stringsAsFactors = F)
-data_obj <- readRDS("/home/zhangpeiru/Rworkspace/scmgca/code/data/new_mouse_RNA_new.rds")
+data_obj <- readRDS("new_mouse_RNA_new.rds")
 
 unique(data_obj$seurat_annotations)
 
@@ -154,7 +154,7 @@ cellchat <- computeCommunProb(cellchat, raw.use = TRUE, population.size = TRUE)
 cellchat <- filterCommunication(cellchat, min.cells = 10)
 cellchat <- computeCommunProbPathway(cellchat)
 cellchat <- aggregateNet(cellchat)
-saveRDS(cellchat,"/home/zhangpeiru/Rworkspace/scmgca/code/data/prox_cellchat.rds")
+saveRDS(cellchat,"prox_cellchat.rds")
 
 
 
@@ -168,8 +168,8 @@ library(ggplot2)
 library(tidydr)
 library(dplyr)
 
-umap <- read.csv("/home/zhangpeiru/Rworkspace/scmgca/code/data/mouse_kindy_10.csv")
-meta <- read.csv("/home/zhangpeiru/Rworkspace/scmgca/code/data/new_dat_meta.csv")
+umap <- read.csv("mouse_kindy_10.csv")
+meta <- read.csv("new_dat_meta.csv")
 
 merged <- merge(umap, meta, by = "X", all = F)
 colors <- c("Proximal tubule cell 1" = "#C5B0D5",
@@ -217,7 +217,7 @@ p <- ggplot(merged, aes(x = V1, y = V2,
   guides(fill = "none") 
 p
 dev.off()
-ggsave("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig7_a.pdf",p,width = 8.5,height = 6)
+ggsave("kidney/fig7_a.pdf",p,width = 8.5,height = 6)
 
 
 # fig7 b
@@ -236,11 +236,11 @@ colors <- c("Proximal tubule cell 1" = "#C5B0D5",
             "Macrophage" = "#BCBD22",
             "Proximal tubule cell 3" = "#7200DA")
 
-new <- readRDS("/home/zhangpeiru/Rworkspace/scmgca/code/data/new_mouse_RNA_new.rds")
+new <- readRDS("new_mouse_RNA_new.rds")
 new <- SetIdent(new, value = new$new_type)
-all.marker <- read.csv("/home/zhangpeiru/Rworkspace/scmgca/code/data/end_all_markers.csv",row.names = 1)
+all.marker <- read.csv("end_all_markers.csv",row.names = 1)
 top10 <- all.marker %>% group_by(cluster) %>% top_n(n = 100,wt = avg_log2FC)
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig7b.pdf",width = 6,height = 6)
+#pdf("kidney/fig7b.pdf",width = 6,height = 6)
 DoHeatmap(new, features = top10$gene, group.colors = colors,label = F,) +
   scale_fill_gradient2(low = "#008bd0", mid = "#dddddc", high = "#ff5743", midpoint = 0) +
   theme(axis.text.y = element_blank())
@@ -251,8 +251,8 @@ library(Seurat)
 library(Signac)
 library(dplyr)
 library(ggplot2)
-atac <- readRDS("/home/zhangpeiru/Rworkspace/scmgca/code/data/raw_all.rds")
-all.marker <- read.csv("/home/zhangpeiru/Rworkspace/scmgca/code/data/Diff_gene_table.csv",row.names = 1)
+atac <- readRDS("raw_all.rds")
+all.marker <- read.csv("Diff_gene_table.csv",row.names = 1)
 top10 <- all.marker %>% group_by(cluster) %>% top_n(n = 100,wt = avg_log2FC)
 
 atacdata <- atac@assays$ATAC$data 
@@ -311,7 +311,7 @@ pheatmap(
 gc()
 DefaultAssay(atac) <- 'ATAC'
 atac <- ScaleData(atac,features = rownames(atac))
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig7b_atac_heatmap.pdf",width = 6,height = 6)
+#pdf("kidney/fig7b_atac_heatmap.pdf",width = 6,height = 6)
 DoHeatmap(atac, features = top10$gene, group.colors = colors, label = FALSE) +
   scale_fill_gradientn(
     colors = c("#8d90e3", "#b7b9f7", "#DBDBFF", "#f7f7f7", "#ffb673", "#ffa257","#ff6a13"), # 五种颜色
@@ -344,7 +344,7 @@ p <- ggplot(merged, aes(x = V1, y = V2,
   guides(fill = "none") 
 p
 dev.off()
-#ggsave("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig7c_left.pdf",p,width = 6.5,height = 6)
+#ggsave("kidney/fig7c_left.pdf",p,width = 6.5,height = 6)
 
 # fig7 c右图
 #result <- as.data.frame.matrix(table(merged$new_type, merged$tu))
@@ -383,7 +383,7 @@ p <- ggplot(melt.result, aes(x = Part, y = value, fill = var,
     legend.title = element_text(size = 12)
   )
 p
-#ggsave("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig7c_right.pdf", plot = p, height = 4, width = 6)
+#ggsave("kidney/fig7c_right.pdf", plot = p, height = 4, width = 6)
 
 
 install.packages("rms")  
@@ -397,7 +397,7 @@ region = "Hnf4a"
 extend.upstream = 3000
 extend.downstream = 10000
 #object <- SortIdents(object)
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig_7g.pdf",width = 6.5,height = 6)
+#pdf("kidney/fig_7g.pdf",width = 6.5,height = 6)
 
 #install.packages("patchwork")
 
@@ -433,7 +433,7 @@ extend.upstream = 0
 extend.downstream = 0
 
 
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig7i.pdf",width = 6.5,height = 3.5)
+#pdf("kidney/fig7i.pdf",width = 6.5,height = 3.5)
 CoveragePlot(
   object = object,
   region = region,
@@ -448,9 +448,9 @@ CoveragePlot(
 
 
 
-new <- readRDS("/home/zhangpeiru/Rworkspace/scmgca/code/data/new_mouse_RNA_new.rds")
+new <- readRDS("new_mouse_RNA_new.rds")
 Idents(new) <- "new_type"
-pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig_7i-2.pdf",width = 6.5,height = 5)
+pdf("kidney/fig_7i-2.pdf",width = 6.5,height = 5)
 VlnPlot(new,features = region,idents = idents,cols = twocol)
 dev.off()
 
@@ -463,7 +463,7 @@ extend.upstream = 3000
 
 extend.downstream = 10000
 #object <- SortIdents(object)
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig_8b.pdf",width = 6.5,height = 6)
+#pdf("kidney/fig_8b.pdf",width = 6.5,height = 6)
 CoveragePlot(
   object = object,
   region = region,
@@ -492,7 +492,7 @@ twocol <- c("Proximal tubule cell 1"="#ffb69c", "Proximal tubule cell 2"="#e2dda
 extend.upstream = 0
 extend.downstream = 0
   
-#pdf(paste0("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/",region,"_1.pdf"),width = 6.5,height = 3.8)
+#pdf(paste0("kidney/",region,"_1.pdf"),width = 6.5,height = 3.8)
 CoveragePlot(
   object = object,
   region = region,
@@ -516,7 +516,7 @@ extend.downstream = 0
 
 # fig8 e f
 library(CellChat)
-cellchat <- readRDS("/home/zhangpeiru/Rworkspace/scmgca/code/data/prox_cellchat.rds")
+cellchat <- readRDS("prox_cellchat.rds")
 custom_colors <- colorRampPalette(c("#019f97", "white", "#9c93e5"))(100)
 levels(cellchat@idents)
 colors <- c("Distal convoluted tubule cell" = "#17BECF",
@@ -527,25 +527,25 @@ colors <- c("Distal convoluted tubule cell" = "#17BECF",
             "Proximal tubule cell 1" = "#C5B0D5",
             "Proximal tubule cell 2" = "#9467BD",
             "Proximal tubule cell 3" = "#7200DA")  
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig8_cellchat.heatmep.pdf",width = 12,height = 6)
+#pdf("kidney/fig8_cellchat.heatmep.pdf",width = 12,height = 6)
 ht1 <- netAnalysis_signalingRole_heatmap(cellchat, pattern = "outgoing", color.use = colors)
 ht2 <- netAnalysis_signalingRole_heatmap(cellchat, pattern = "incoming", color.use = colors)
 ht1 + ht2
 #dev.off()
 
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig8cellchat.heatmep1.pdf",width = 12,height = 6)
+#pdf("kidney/fig8cellchat.heatmep1.pdf",width = 12,height = 6)
 gg1 <- netVisual_heatmap(cellchat,, color.use = colors)
 gg2 <- netVisual_heatmap(cellchat, measure = "weight", color.use = colors)
 gg1 + gg2
 #dev.off()
  
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig8_F.pdf",width = 8,height = 6)
+#pdf("kidney/fig8_F.pdf",width = 8,height = 6)
 pathways.show <- "EGF"
 vertex.receiver = seq(1,4)
 netVisual_aggregate(cellchat, signaling = pathways.show,  vertex.receiver = vertex.receiver,layout = "hierarchy",color.use = colors)
 #dev.off()
 
-#pdf("/home/zhangpeiru/Rworkspace/scmgca/code/kidney/fig8e_cellchat.pdf",width = 8,height = 6)
+#pdf("kidney/fig8e_cellchat.pdf",width = 8,height = 6)
 groupSize <- as.numeric(table(cellchat@idents))
 par(mfrow = c(1,2), xpd=TRUE)
 netVisual_circle(cellchat@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions",color.use = colors)
