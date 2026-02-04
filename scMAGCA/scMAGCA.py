@@ -204,7 +204,7 @@ class scMultiCluster(nn.Module):
         else:
             n_clusters = GetCluster(pretrain_latent.cpu().detach().numpy(),n=20,res=resolution)
             print("Initializing cluster centers with kmeans.")
-            kmeans = KMeans(n_clusters=n_clusters,n_init=20)
+            kmeans = KMeans(n_clusters=n_clusters)
             self.mu = Parameter(torch.Tensor(n_clusters, self.z_dim), requires_grad=True).to(self.device)
 
             for _, batch_data in enumerate(dataloader):
@@ -261,3 +261,4 @@ class scMultiCluster(nn.Module):
 
 
             return self.y_pred_last, self.embedding
+
