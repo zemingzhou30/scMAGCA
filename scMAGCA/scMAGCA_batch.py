@@ -135,7 +135,7 @@ class scMultiCluster(nn.Module):
         optimizer = optim.Adadelta(filter(lambda p: p.requires_grad, self.parameters()), lr=1, rho=.95)
 
         print("Initializing cluster centers with kmeans.")
-        kmeans = KMeans(n_clusters=n_clusters,n_init=20)
+        kmeans = KMeans(n_clusters=n_clusters)
         self.mu = Parameter(torch.Tensor(n_clusters, self.z_dim), requires_grad=True).to(self.device)
         for _, batch_data in enumerate(dataloader):
             z = self.encoder(x=batch_data.x, edge_index=SparseTensor(row=batch_data.edge_index[0], col=batch_data.edge_index[1]), edge_weight=batch_data.edge_attr)
@@ -201,4 +201,5 @@ class scMultiCluster(nn.Module):
         self.y_pred_last, self.embedding = self.y_pred, z
         print('Final Result : AMI= %.4f, NMI= %.4f, ARI= %.4f, ACC= %.4f'% (final_ami,final_nmi,final_ari,final_acc))         
                 
+
         return self.y_pred_last, self.embedding

@@ -134,7 +134,7 @@ class scMultiCluster(nn.Module):
 
         if y is not None:
             print("Initializing cluster centers with kmeans.")
-            kmeans = KMeans(n_clusters=n_clusters,n_init=20)
+            kmeans = KMeans(n_clusters=n_clusters)
             self.mu = Parameter(torch.Tensor(n_clusters, self.z_dim), requires_grad=True).to(self.device)
             for _, batch_data in enumerate(dataloader):
                 z = self.encoder(x=batch_data.x, edge_index=SparseTensor(row=batch_data.edge_index[0], col=batch_data.edge_index[1]), edge_weight=batch_data.edge_attr)
@@ -204,7 +204,7 @@ class scMultiCluster(nn.Module):
         else:
             n_clusters = GetCluster(pretrain_latent.cpu().detach().numpy(),n=20,res=resolution)
             print("Initializing cluster centers with kmeans.")
-            kmeans = KMeans(n_clusters=n_clusters,n_init=20)
+            kmeans = KMeans(n_clusters=n_clusters)
             self.mu = Parameter(torch.Tensor(n_clusters, self.z_dim), requires_grad=True).to(self.device)
 
             for _, batch_data in enumerate(dataloader):
@@ -259,4 +259,6 @@ class scMultiCluster(nn.Module):
             self.y_pred_last, self.embedding = self.y_pred, z
             print('Final Result : ASW= %.4f, DB= %.4f, CH= %.4f'% (final_asw,final_db,final_ch))  
 
+
             return self.y_pred_last, self.embedding
+
