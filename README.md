@@ -10,7 +10,7 @@ We develop a multimodal graph convolutional model based on adversarial learning 
 - [Datasets](#Datasets)
 - [Dependencies](#Dependencies)
 - [Usage](#Usage)
-- [Output](#Output)
+- [Outputs](#Output)
 - [Arguments](#Arguments)
 - [Reproducible pipeline](#pipeline)
 - [Quickstart](#Quickstart)
@@ -72,7 +72,7 @@ Other objects in the h5ad or h5 files:
 
 You can also visit the online document at [Welcome to scMAGCA’s documentation! — scMAGCA 1.0 documentation](https://scmagca.readthedocs.io/en/latest/)
 
-## <a name="Dependencies">Output</a>
+## <a name="Dependencies">Outputs</a>
 
 1. scMAGCA outputs latent representation of data which can be used for further downstream analyses and visualized by Umap; 
 2. scMAGCA outputs predicted label of data which can be used for calculating related evaluation indexs.
@@ -112,7 +112,7 @@ Structure: X1(ADT or ATAC), X2(RNA), Y(label, if exit), Batch (Batch indicator f
 
 --device: training device. Default: cuda.
 
- *We denote  antibody-derived tags (ADTs) + Gene Expression as CITE-Seq and 10X Single-Cell Multiome ATAC + Gene Expression technology as SMAGE-seq for convenience. 
+ We denote  antibody-derived tags (ADTs) + Gene Expression as CITE-Seq and 10X Single-Cell Multiome ATAC + Gene Expression technology as SMAGE-seq for convenience. 
 
 ## <a name="pipline">Reproducible pipeline</a>
 
@@ -120,7 +120,7 @@ We have updated the relevant code for drawing the main figures in the "figures" 
 
 ## <a name="pipline">Quickstart</a>
 
-We have provided a notebook (toturials/Quickstart.ipynb) that runs the complete process on a simple sample dataset (10X1kpbmc) to facilitate user debugging and improve accessibility. Meanwhile, the relevant data of the dataset  used in this tutorial has been uploaded to the datasets folder for a quick start.
+We have provided a notebook (toturials/Quickstart.ipynb) that runs the complete process on a simple sample dataset (10X1kpbmc) to facilitate user debugging and improve accessibility. This tutorial includes the relrepresentative outputs logs and UMAP visualization figure which substantially improve accessibility while keeping the full benchmarking workflow unchanged. Meanwhile, the relevant data of the dataset  used in this tutorial has been uploaded to the datasets folder for a quick start. 
 
 
 
