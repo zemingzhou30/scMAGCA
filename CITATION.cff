@@ -1,0 +1,21 @@
+cff-version: 1.0.1
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Zhou"
+  given-names: "Zeming"
+  orcid: "https://orcid.org/0009-0006-3442-0101"
+title: "scMAGCA"
+version: 1.0.1
+doi: 10.5281/zenodo.19234320
+date-released: 2026-03-26
+url: "https://github.com/zemingzhou30/scMAGCA"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Zhou"
+      given-names: "Zeming"
+      orcid: "https://orcid.org/0009-0006-3442-0101"
+  title: "Interpretable modality-aware mapping of gene regulation in single-cell multiomics with scMAGCA"
+  doi: 10.5281/zenodo.19234320
+  journal: "Nature Communications"
+  year: 2026
